@@ -10,7 +10,7 @@ setup(
     packages=find_packages(exclude=['test']),
     data_files=[
         ('share/ament_index/resource_index/packages',
-            ['resource/' + package_name]),
+         ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         (os.path.join('share', package_name, 'launch'), glob('depth_perception/launch/*.py')),
     ],
@@ -23,11 +23,11 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            #'thermal_pub_sub = depth_perception.publish_thermals:main', # executable_name = package_name.file_name:entry_function
-            #'sync = depth_perception.sync_stereo_pair:main',
+            # 'thermal_pub_sub = depth_perception.publish_thermals:main', # executable_name = package_name.file_name:entry_function
+            'stereobm = depth_perception.sync_stereo_pair:main',
             'mono_pub_sub = depth_perception.moge_inference_mono:main',
             'madpose = depth_perception.madpose_metric_solver:main',
-            #'pclsub = depth_perception.pcl_sub:main'
+            # 'pclsub = depth_perception.pcl_sub:main'
         ],
     },
 )
