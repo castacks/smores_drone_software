@@ -91,7 +91,7 @@ class MogeInference(Node):
         # convert to tensor
         input_tensor = torch.tensor(input_img / 255, dtype=torch.float32, device=self.device).permute(2, 0, 1)
         
-        output = self.model.infer(input_tensor, fov_x=95, resolution=1)
+        output = self.model.infer(input_tensor, fov_x=95, resolution_level=1)
         depth = output["depth"].cpu().numpy()
         points = output["points"].cpu().numpy()
         intrinsics = output["intrinsics"].cpu().numpy()
