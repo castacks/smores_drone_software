@@ -1,7 +1,8 @@
 import os
 import glob
-from histogram import *
 import cv2
+from histogram import *
+from stereo_rectification import *
 
 def run_preprocessing():
     """
@@ -47,5 +48,28 @@ def run_preprocessing():
         # cv2.waitKey(0)
         # cv2.destroyAllWindows()
 
+def rectify_images():
+    preprocessed_base_path = 'data/Airlab_Depth_Estimation/preprocessed'
+
+    # Find all PNG images in the raw directory and its subdirectories
+    left_image_paths = glob.glob(os.path.join(preprocessed_base_path, '**', 'left.png'), recursive=True)
+    right_image_paths = glob.glob(os.path.join(preprocessed_base_path, '**', 'right.png'), recursive=True)
+
+    for left, right in list(zip(left_image_paths, right_image_paths)):
+
+        left_img = load_img(left)
+        right_img = load_img(right)
+
+        left_rectified, right_rectified = rectification_with_calibrated_data(left_img, right_img)
+        check_correctness_rectified(left_rectified, right_rectified)
+
+        # Modify the file paths to include '_rectified'
+        left_rectified_path = left.replace('left.png', 'left_rectified.png')
+        right_rectified_path = right.replace('right.png', 'right_rectified.png')
+
+        cv2.imwrite(left_rectified_path, left_rectified)
+        cv2.imwrite(right_rectified_path, right_rectified)
+
 if __name__ == '__main__':
-    run_preprocessing()
+    # run_preprocessing()
+    rectify_images()

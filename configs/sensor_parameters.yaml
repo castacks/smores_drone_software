@@ -1,0 +1,29 @@
+thermalCamera1:
+  # Projection Parameters
+  fx: 391.5162840730665
+  fy: 392.96131720987114
+  cx: 315.6618565999557
+  cy: 252.91158584290113
+  # Distortion Parameters
+  k1: -0.3570177436783058
+  k2: 0.12568663855520218
+  p1: 0.0035096744648418607
+  p2: 0.00059
+  # Other Utilities
+  image_width: 640
+  image_height: 512
+
+thermalCamera2:
+  # Projection Parameters
+  fx: 391.5162840730665
+  fy: 392.96131720987114
+  cx: 315.6618565999557
+  cy: 252.91158584290113
+  # Distortion Parameters
+  k1: -0.3570177436783058
+  k2: 0.12568663855520218
+  p1: 0.0035096744648418607
+  p2: 0.00059
+  # Other Utilities
+  image_width: 640
+  image_height: 512
