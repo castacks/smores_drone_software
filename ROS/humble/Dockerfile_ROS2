@@ -60,27 +60,29 @@ RUN apt-get update && \
                         libtbb-dev \
                         libcanberra-gtk-module \
                         libcanberra-gtk3-module \
-                        ros-noetic-hector-trajectory-server
+                        ros-noetic-hector-trajectory-server \
+			mesa-utils \
+			x11-apps
 
 RUN echo "source /opt/ros/noetic/setup.bash" >> ~/.bash_profile
 
-RUN cd /tmp && git clone https://github.com/opencv/opencv.git && \
-    cd opencv && \
-    git checkout 4.4.0 && \
-    mkdir build && cd build && \
-    cmake -j4 -D CMAKE_BUILD_TYPE=Release \
-                -D BUILD_EXAMPLES=OFF  \
-                -D BUILD_DOCS=OFF \
-                -D BUILD_PERF_TESTS=OFF \
-                -D BUILD_TESTS=OFF \
-                -D CMAKE_BUILD_TYPE=Release \
-                -D WITH_CUDA=OFF \
-                -D WITH_GTK=ON \
-                -D WITH_GTK3=ON \
-                -D WITH_GTK_2_X=OFF \
-                -DENABLE_PRECOMPILED_HEADERS=OFF \
-                -D CMAKE_INSTALL_PREFIX=/usr/local  .. && \
-    make -j16 && make install && \
-    cd / && rm -rf /tmp/opencv
+#RUN cd /tmp && git clone https://github.com/opencv/opencv.git && \
+#    cd opencv && \
+#    git checkout 4.4.0 && \
+#    mkdir build && cd build && \
+#    cmake -j4 -D CMAKE_BUILD_TYPE=Release \
+#                -D BUILD_EXAMPLES=OFF  \
+#                -D BUILD_DOCS=OFF \
+#                -D BUILD_PERF_TESTS=OFF \
+#                -D BUILD_TESTS=OFF \
+#                -D CMAKE_BUILD_TYPE=Release \
+#                -D WITH_CUDA=OFF \
+#                -D WITH_GTK=ON \
+#                -D WITH_GTK3=ON \
+#                -D WITH_GTK_2_X=OFF \
+#                -DENABLE_PRECOMPILED_HEADERS=OFF \
+#                -D CMAKE_INSTALL_PREFIX=/usr/local  .. && \
+#    make -j16 && make install && \
+#    cd / && rm -rf /tmp/opencv
 
 USER user
