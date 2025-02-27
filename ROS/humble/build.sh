@@ -1,4 +1,4 @@
 #! /bin/sh
 
 # Build docker image
-podman build -f Dockerfile_ROS1 -t ros_noetic .
+podman build -f Dockerfile -t smores_dev /home/smores/smores_drone_software

@@ -65,7 +65,10 @@ RUN mkdir /workspace & cd /workspace && \
 
 
 ############################ UNCOMMENT BELOW FOR MoGe #######################################
+ADD Madpose/ /Madpose/
+RUN cd /Madpose/madpose && pip install .
 
+RUN apt-get -y install ros-dev-tools vim sudo libstdc++6 
 ############################ UNCOMMENT ABOVE FOR MoGe #######################################
 
 RUN git clone https://github.com/jenicek/asmk /asmk
