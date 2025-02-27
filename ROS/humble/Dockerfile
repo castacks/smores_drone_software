@@ -2,6 +2,9 @@ FROM nvcr.io/nvidia/pytorch:24.05-py3
 ENV LANG=en_US.UTF-8
 ENV DEBIAN_FRONTEND=noninteractive
 
+ARG ssh_prv_key
+ARG ssh_pub_key
+
 RUN apt-get update && apt-get install -y software-properties-common curl locales && \
     add-apt-repository universe && \
     locale-gen en_US en_US.UTF-8 && \
@@ -35,13 +38,17 @@ RUN mkdir /opencv-build-temp && cd /opencv-build-temp && \
     -DENABLE_PRECOMPILED_HEADERS=OFF \
     -D BUILD_opencv_python3=ON && \
     ninja install && \
-    cd / && rm -rf /opencv-build-temp/ &&
+    cd / && rm -rf /opencv-build-temp/
 
-RUN mkdir /workspace & cd /workspace && \ 
-    git clone https://github.com/castacks/smores_drone_software.git --recurse-submodules && \
-    git checkout depth-perception && \
-    git submodule init && \
-    git submodule update
+RUN mkdir -p /root/.ssh && \
+        chmod 700 /root/.ssh  && \
+        echo "$ssh_prv_key" > /root/.ssh/id_rsa && \
+        echo "$ssh_pub_key" > /root/.ssh/id_rsa.pub && \
+        chmod 600 /root/.ssh/id_rsa && \
+        chmod 600 /root/.ssh/id_rsa.pub  && \
+        cd /workspace && \
+        mkdir smores_drone_software && \
+        echo "StrictHostKeyChecking no" >> /etc/ssh/ssh_config
 
 
 ############################ UNCOMMENT BELOW FOR MAST3R #######################################
@@ -64,24 +71,21 @@ RUN mkdir /workspace & cd /workspace && \
 ############################ UNCOMMENT ABOVE FOR MAST3R #######################################
 
 
-############################ UNCOMMENT BELOW FOR MoGe #######################################
-ADD Madpose/ /Madpose/
-RUN cd /Madpose/madpose && pip install .
+# ############################ UNCOMMENT BELOW FOR MoGe #######################################
+# ############################ UNCOMMENT ABOVE FOR MoGe #######################################
 
-RUN apt-get -y install ros-dev-tools vim sudo libstdc++6 
-############################ UNCOMMENT ABOVE FOR MoGe #######################################
+# RUN git clone https://github.com/jenicek/asmk /asmk
+# RUN pip install cython faiss-gpu
+# WORKDIR /asmk/cython
+# RUN cythonize *.pyx
 
-RUN git clone https://github.com/jenicek/asmk /asmk
-RUN pip install cython faiss-gpu
-WORKDIR /asmk/cython
-RUN cythonize *.pyx
+# WORKDIR /asmk
+# RUN pip install .
 
-WORKDIR /asmk
-RUN pip install .
-
-COPY .Xauthority /root/.Xauthority
-COPY ros_entrypoint.sh /
-RUN chmod +x /ros_entrypoint.sh
-RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+# COPY no-push/.Xauthority /root/.Xauthority
+COPY ROS/humble/ros_entrypoint.sh /
+RUN chmod +x /ros_entrypoint.sh && \
+    echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+    
 ENTRYPOINT ["/ros_entrypoint.sh"]
 CMD ["bash"]

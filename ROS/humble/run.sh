@@ -1,15 +1,15 @@
 #! /bin/bash
 
-docker build -t ros_noetic .
-
-docker run -it \
-	--volume ~/.Xauthority:/home/user/.Xauthority:rw \
+podman run -it \
 	--volume ~/.Xauthority:/root/.Xauthority:rw \
 	-v /tmp/.X11-unix:/tmp/.X11-unix \
+	-v /tmp/.X11-unix:/tmp/.X11-unix \
+	-v /home/smores/smores_drone_software:/workspace/smores_drone_software:z \
 	--device=/dev/dri:/dev/dri \
 	-e DISPLAY=$DISPLAY \
 	--gpus all \
-      	ros_noetic /bin/bash
+	--net host \
+      	localhost/smores_dev:latest /bin/bash
 
 # -v <host pc absolute path>:<absolute container path>
 
