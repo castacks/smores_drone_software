@@ -7,7 +7,7 @@
 #include <sensor_msgs/msg/image.h>
 #include "cv_bridge/cv_bridge.h"
 #include "opencv2/imgproc.hpp"
-#include "opencv2/highgui.hpp"
+// #include "opencv2/highgui.hpp"
 using std::placeholders::_1;
 using namespace std;
 using namespace cv;
@@ -65,6 +65,15 @@ void fastPreprocess(const Mat& source, Mat& output, double_t fraction){
   threshold(output, output, hpixelval-lpixelval, hpixelval-lpixelval, THRESH_TRUNC);
   output *= (256.0/(hpixelval - lpixelval));
   output.convertTo(output, CV_8U);
+
+  /** TODO 1. Install yaml-cpp and import yaml.h
+      TODO 2. Have different subscribers for left and right image
+      TODO 3. Load Yaml scripts and read necessary values
+      TODO 4. call cv2.undistort
+   */
+  //  cv::Mat cameraIntMat = (cv::Mat1d(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
+  //  cv::Mat distCoeffs = (cv::Mat1d(1, 5) << k1, k2, p1, p2, k3);
+  //  cv::undistort(output, output, cameraIntMat, distCoeffs, newCamMat)
 }
 class ThermalPreprocessingNode : public rclcpp::Node
 {
@@ -99,7 +108,7 @@ class ThermalPreprocessingNode : public rclcpp::Node
     : Node("thermal_preprocessing"){
       subscription_ = this->create_subscription<sensor_msgs::msg::Image>("thermal_raw", 10, std::bind(&ThermalPreprocessingNode::image_callback, this, _1));
       publisher_ = this->create_publisher<sensor_msgs::msg::Image>("preprocessed", 10);
-      cv::namedWindow("ImageDisplay");
+      // cv::namedWindow("ImageDisplay");
     }
 
   

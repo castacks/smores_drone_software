@@ -4,6 +4,14 @@ project(thermal-preprocessing)
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
+include(FetchContent)
+
+FetchContent_Declare(
+  yaml-cpp
+  GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
+  # GIT_TAG <tag_name> # Can be a tag (yaml-cpp-x.x.x), a commit hash, or a branch name (master)
+)
+FetchContent_MakeAvailable(yaml-cpp)
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
@@ -15,8 +23,10 @@ find_package(std_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(OpenCV REQUIRED)
+find_package(yaml-cpp REQUIRED)
+
 add_executable(thermal-preprocessing src/thermal-preprocessing-node.cpp)
-ament_target_dependencies(thermal-preprocessing rclcpp std_msgs cv_bridge sensor_msgs OpenCV)
+ament_target_dependencies(thermal-preprocessing rclcpp std_msgs cv_bridge sensor_msgs OpenCV yaml-cpp)
 
 target_include_directories(thermal-preprocessing PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

@@ -5,6 +5,7 @@ podman run -it \
 	-v /tmp/.X11-unix:/tmp/.X11-unix \
 	-v /tmp/.X11-unix:/tmp/.X11-unix \
 	-v /home/smores/smores_drone_software:/workspace/smores_drone_software:z \
+	-v /mnt/storage:/workspace/smores_drone_software/data:z \
 	--device=/dev/dri:/dev/dri \
 	-e DISPLAY=$DISPLAY \
 	--gpus all \

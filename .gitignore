@@ -5,4 +5,5 @@ build
 devel
 share
 install
+log
 no-push

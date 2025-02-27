@@ -3,9 +3,11 @@ from pathlib import Path
 import numpy as np
 import os, sys
 import pdb
-sys.path.append("/opt/conda/lib/python3.10/site-packages/")
-sys.path.append("/workspace/MoGe")
-sys.path.append("/workspace/madpose")
+# sys.path.append("/opt/conda/lib/python3.10/site-packages/")
+sys.path.append("/workspace/smores_drone_software/include")
+sys.path.append("/workspace/smores_drone_software/include/MoGe")
+sys.path.append("/workspace/smores_drone_software/incldue/madpose")
+sys.path.append("/workspace/smores_drone_software/incldue/PoseLib")
 from moge.model import MoGeModel
 from moge.utils.vis import colorize_depth
 
@@ -35,7 +37,7 @@ class MogeInference(Node):
             self.device = torch.device("cuda")
         else:
             self.device = torch.device("cpu")
-        self.model = MoGeModel.from_pretrained("MoGe/moge/model/weights/model.pt").to(self.device)
+        self.model = MoGeModel.from_pretrained("/workspace/smores_drone_software/include/MoGe/moge/model/weights/model.pt").to(self.device)
 
         # TODO: Update to sync with the cameras directly
         self.subscription = self.create_subscription(
