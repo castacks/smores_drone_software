@@ -1,0 +1,6 @@
+[submodule "include/MoGe"]
+	path = include/MoGe
+	url = git@github.com:microsoft/MoGe.git
+[submodule "include/PoseLib"]
+	path = include/PoseLib
+	url = git@github.com:PoseLib/PoseLib.git
