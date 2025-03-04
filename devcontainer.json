@@ -1,0 +1,28 @@
+{
+  "name": "thermal-preprocessing",
+  "build": { "dockerfile": "/home/smores/thermal-preprocessing/Dockerfile" },
+  "runArgs": [
+    "--gpus=all",
+    "--privileged",
+    "--network=host"
+  ],
+  "mounts": [
+    "source=/mnt/storage,target=/storage,type=bind",
+    "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind"
+  ],
+  "remoteEnv": {
+    "DISPLAY": "${localEnv:DISPLAY}"
+  },
+  workspaceMount: "source=${localEnv:HOME}/thermal-preprocessing/workspace,target=/workspace,type=bind",
+  "workspaceFolder": "/workspace",
+  "overrideCommand": false,
+  "customizations": {
+    "jetbrains": {
+      "backend": "PyCharm",
+      "plugins": [
+        "org.jetbrains.plugins.cmake",
+        "org.jetbrains.plugins.remote-run"
+      ]
+    }
+  },
+  }
