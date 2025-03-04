@@ -8,14 +8,14 @@ The build is made for MRSD lab system running fedora with gnu 14 but should be e
 
 ## Steps to build
 
-1. Clone the repository
+1. Download source codes
+
+Download the source codes from the below link and unzip it in the Linux home directory
+https://drive.google.com/uc?export=download&id=1Czugl1te7sTafIENPKLXVv0nU4EZCdE-
         
         ```
-        cd ~ 
+        unzip ros2_humble.zip
 
-        git clone -b Ros2_humble_source_build https://github.com/castacks/smores_drone_software.git
-
-        mv smores_drone_software ros2_humble
         ```
 
 2. Install dependencies:
