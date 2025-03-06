@@ -12,6 +12,7 @@
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>ros2launch</exec_depend>
   <exec_depend>foxglove_bridge</exec_depend>
+  <exec_depend>cam_interfaces</exec_depend>
 
 
   <test_depend>ament_copyright</test_depend>

@@ -1,4 +1,0 @@
-sensor_msgs/Image preproc_left
-sensor_msgs/Image preproc_right
-sensor_msgs/Image depth_left
-sensor_msgs/Image depth_right

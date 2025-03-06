@@ -6,13 +6,12 @@ import pdb
 # sys.path.append("/opt/conda/lib/python3.10/site-packages/")
 sys.path.append("/workspace/smores_drone_software/include")
 sys.path.append("/workspace/smores_drone_software/include/MoGe")
-sys.path.append("/workspace/smores_drone_software/incldue/madpose")
-sys.path.append("/workspace/smores_drone_software/incldue/PoseLib")
 from moge.model import MoGeModel
 from moge.utils.vis import colorize_depth
+from cam_interfaces.msg import MoGEOutput
 
-# colcon build --symlink-install && source install/setup.bash && ros2 launch depth_perception lunch.py
-# colcon build --packages-select depth_perception && source install/setup.bash && ros2 launch depth_perception lunch.py
+# colcon build --symlink-install && source install/setup.bash && ros2 launch depth_perception launch.py
+# colcon build --packages-select depth_perception && source install/setup.bash && ros2 launch depth_perception launch.py
 
 import cv2
 import torch
@@ -48,8 +47,10 @@ class MogeInference(Node):
         )
         self.subscription  # prevent unused variable warning
 
-        self.preproc_publisher = self.create_publisher(Image, "thermal/preproc", 10)
+        #self.preproc_publisher = self.create_publisher(Image, "thermal/preproc", 10) # TODO remove
         self.depthmap_publisher = self.create_publisher(Image, "thermal/moge/depthmap", 10)
+
+        self.moge_publisher = self.create_publisher(MoGEOutput, "thermal/moge", 10)
 
         # self.pcl_publisher = self.create_publisher(PointCloud, "moge/pcl", 10)
 
@@ -58,6 +59,16 @@ class MogeInference(Node):
         # )
 
         self.i = 0
+
+    def preproc(self, image):
+        # Apply histogram filtering, CLAHE, Bilateral Filtering
+        cv_img = self.filter_outliers(image)
+        cv_img = self.apply_clahe(cv_img)
+        cv_img = self.bilateral_filtering(cv_img, d=50, sigmaColor=0, sigmaSpace=50)
+        #cv2.imwrite(f"data/moge_ros_test_preproc/img_{self.i}.tiff", cv_img)
+        self.publish_preproc(cv_img)
+
+        return cv_img
 
     def infer_depth(self, image: Image):
         """
@@ -76,27 +87,27 @@ class MogeInference(Node):
         See how new subscriber calls are handled when one is still running WITH Multithreading and WITHOUT
         """
 
-        cv_img = self.bridge.imgmsg_to_cv2(image, image.encoding)
-        # Apply histogram filtering, CLAHE, Bilateral Filtering
-        cv_img = self.filter_outliers(cv_img)
-        cv_img = self.apply_clahe(cv_img)
-        cv_img = self.bilateral_filtering(cv_img, d=50, sigmaColor=0, sigmaSpace=50)
-        #cv2.imwrite(f"data/moge_ros_test_preproc/img_{self.i}.tiff", cv_img)
-        self.publish_preproc(cv_img)
+        cv2_img = self.bridge.imgmsg_to_cv2(image, image.encoding)
+        #cv2_img = self.preproc(cv2_img)
 
-        cv_img = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)
-        input_tensor = torch.tensor(cv_img / 255, dtype=torch.float32, device=self.device).permute(2, 0, 1)
+        input_img = cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB)
+        input_tensor = torch.tensor(input_img / 255, dtype=torch.float32, device=self.device).permute(2, 0, 1)
         
         output = self.model.infer(input_tensor)
-        self.i+=1
         depth = output["depth"].cpu().numpy()
         points = output["points"].cpu().numpy()
         intrinsics = output["intrinsics"].cpu().numpy()
         mask = output["mask"].cpu().numpy()
-        #self.get_logger().info(f"{depth.shape}")
+        
         processed_depthmap = cv2.cvtColor(colorize_depth(depth), cv2.COLOR_RGB2BGR)
         #cv2.imwrite(f"data/moge_ros_test/depth_vis_{self.i}.png", processed_depthmap)
         self.publish_depthmap(processed_depthmap)
+
+        msg = MoGEOutput()
+        msg.header = image.header
+        msg.preproc = image
+        msg.depth = depth.flatten().tolist()
+        self.moge_publisher.publish(msg)
 
     def publish_preproc(self, image):
         """
