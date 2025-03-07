@@ -71,11 +71,13 @@ RUN mkdir -p /root/.ssh && \
 ############################ UNCOMMENT ABOVE FOR MAST3R #######################################
 
 
-# ############################ UNCOMMENT BELOW FOR MoGe #######################################
+# ############################ UNCOMMENT BELOW FOR MoGe ###########################w############
 # ############################ UNCOMMENT ABOVE FOR MoGe #######################################
 
 # ############################ UNCOMMENT BELOW FOR MadPose #######################################
-RUN apt-get remove -y python3-blinker
+RUN apt-get remove -y python3-blinker && \
+    cd /workdir && \
+    wget -O model.pt https://huggingface.co/Ruicheng/moge-vitl/resolve/main/model.pt?download=true
 # ############################ UNCOMMENT ABOVE FOR MadPose #######################################
 
 # RUN git clone https://github.com/jenicek/asmk /asmk
