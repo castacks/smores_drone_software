@@ -1,2 +1,10 @@
 .vscode/
 **/__pycache__
+.idea
+build
+devel
+share
+install
+log
+no-push
+data
