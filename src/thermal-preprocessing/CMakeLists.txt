@@ -2,16 +2,8 @@ cmake_minimum_required(VERSION 3.8)
 project(thermal-preprocessing)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
+  add_compile_options(-Wall -Wextra -Werror -pedantic-errors)
 endif()
-include(FetchContent)
-
-FetchContent_Declare(
-  yaml-cpp
-  GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
-  # GIT_TAG <tag_name> # Can be a tag (yaml-cpp-x.x.x), a commit hash, or a branch name (master)
-)
-FetchContent_MakeAvailable(yaml-cpp)
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
@@ -31,6 +23,14 @@ ament_target_dependencies(thermal-preprocessing rclcpp std_msgs cv_bridge sensor
 target_include_directories(thermal-preprocessing PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
+  target_include_directories(thermal-preprocessing PRIVATE
+  ${YAML_CPP_INCLUDE_DIR}
+)
+
+target_link_libraries(thermal-preprocessing
+  ${YAML_CPP_LIBRARIES}
+)
+
 target_compile_features(thermal-preprocessing PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
 
 install(TARGETS thermal-preprocessing

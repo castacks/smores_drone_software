@@ -8,19 +8,23 @@ def generate_launch_description():
             # namespace='thermal_right',
             executable='thermal-preprocessing',
             name='thermal_left_preprocessor',
-            remappings=[
-                ('/thermal_raw', '/thermal_left/image'),
-                ('preprocessed', '/thermal_left/preprocessed_image'),
-            ]
+            parameters=[
+                    {
+                        "camIntrinsicsFile": "/workspace/smores_drone_software/calibrations/ORDv1_Smores_Feb2025/left_thermal.yaml",
+                        "cam": "left"
+                    }
+                ]
         ),
          Node(
             package='thermal-preprocessing',
             # namespace='thermal_right',
             executable='thermal-preprocessing',
             name='thermal_right_preprocessor',
-            remappings=[
-                ('/thermal_raw', '/thermal_right/image'),
-                ('preprocessed', '/thermal_right/preprocessed_image'),
-            ]
+            parameters=[
+                    {
+                        "camIntrinsicsFile": "/workspace/smores_drone_software/calibrations/ORDv1_Smores_Feb2025/right_thermal.yaml", 
+                        "cam": "right"
+                    }
+                ]
         ),
     ])

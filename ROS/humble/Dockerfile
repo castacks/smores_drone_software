@@ -74,6 +74,10 @@ RUN mkdir -p /root/.ssh && \
 # ############################ UNCOMMENT BELOW FOR MoGe #######################################
 # ############################ UNCOMMENT ABOVE FOR MoGe #######################################
 
+# ############################ UNCOMMENT BELOW FOR MadPose #######################################
+RUN apt-get remove -y python3-blinker
+# ############################ UNCOMMENT ABOVE FOR MadPose #######################################
+
 # RUN git clone https://github.com/jenicek/asmk /asmk
 # RUN pip install cython faiss-gpu
 # WORKDIR /asmk/cython
@@ -84,7 +88,9 @@ RUN mkdir -p /root/.ssh && \
 
 # COPY no-push/.Xauthority /root/.Xauthority
 COPY ROS/humble/ros_entrypoint.sh /
-RUN chmod +x /ros_entrypoint.sh && \
+COPY pip-requirements.txt /workspace
+RUN pip3 install -r pip-requirements.txt && \
+    chmod +x /ros_entrypoint.sh && \
     echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
     
 ENTRYPOINT ["/ros_entrypoint.sh"]
