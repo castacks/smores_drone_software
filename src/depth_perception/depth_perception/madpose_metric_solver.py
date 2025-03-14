@@ -1,10 +1,10 @@
 import rclpy
 import sys
 sys.path.append("/opt/conda/lib/python3.10/site-packages/")
-sys.path.append("/workspace/smores_drone_software/include/MoGe")
-sys.path.append("/workspace/smores_drone_software/include/madpose")
-sys.path.append("/workspace/smores_drone_software/include/PoseLib")
-sys.path.append("/workspace/smores_drone_software/include/ros2_numpy")
+sys.path.append("/external/smores_drone_software/include/MoGe")
+sys.path.append("/external/smores_drone_software/include/madpose")
+sys.path.append("/external/smores_drone_software/include/PoseLib")
+sys.path.append("/external/smores_drone_software/include/ros2_numpy")
 
 import cv2
 import numpy as np
@@ -81,7 +81,7 @@ class MADPoseSolver(Node):
 
     def load_intrinsics(self, cam):
         # TODO dyanmically populate file
-        with open(f'/workspace/smores_drone_software/calibrations/ORDv1_Smores_Feb2025/{cam}_thermal.yaml', 'r') as file:
+        with open(f'/external/smores_drone_software/calibrations/ORDv1_Smores_Feb2025/{cam}_thermal.yaml', 'r') as file:
             cal = yaml.safe_load(file)
 
         intrinsics = cal["cam0"]["intrinsics"]

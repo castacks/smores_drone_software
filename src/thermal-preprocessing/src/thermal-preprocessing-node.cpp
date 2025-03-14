@@ -4,7 +4,8 @@
 #include <string>
 
 #include "rclcpp/rclcpp.hpp"
-#include <sensor_msgs/msg/image.h>
+// #include <sensor_msgs/msg/image.h>
+#include <sensor_msgs/msg/image.hpp>
 #include "cv_bridge/cv_bridge.h"
 #include "opencv2/imgproc.hpp"
 #include <opencv2/highgui/highgui.hpp>
@@ -46,9 +47,6 @@ void preprocess(const Mat &image, Mat &output, double_t fraction) {
  * @param cameraDistCoeffs: camera distortion coefficients loaded from YAML file given in the launch file
  */
 void fastPreprocess(const Mat& source, Mat& output, double_t fraction, cv::Mat& cameraIntrinsics, cv::Mat& cameraDistCoeffs){
-  
-  UNUSED(cameraIntrinsics);
-  UNUSED(cameraDistCoeffs);
 
   float range[] = {0, 65536};
   int histSize = 16384;
@@ -80,12 +78,12 @@ void fastPreprocess(const Mat& source, Mat& output, double_t fraction, cv::Mat& 
   int hpixelval = hv * (65536 / histSize);
   // cout<<lpixelval<<" "<<hpixelval<<" "<<hpixelval - lpixelval<<endl;
   source.convertTo(output, CV_32F);
-
   output -= lpixelval;
   threshold(output, output, hpixelval-lpixelval, hpixelval-lpixelval, THRESH_TRUNC);
   output *= (256.0/(hpixelval - lpixelval));
   output.convertTo(output, CV_8U);
-  // cv::undistort(temp, output, cameraIntrinsics, cameraDistCoeffs);
+  const Mat temp = output.clone();
+  cv::undistort(output, temp, cameraIntrinsics, cameraDistCoeffs);
 }
 
 class ThermalPreprocessingNode : public rclcpp::Node

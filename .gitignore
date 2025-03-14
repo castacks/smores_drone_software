@@ -8,3 +8,4 @@ install
 log
 no-push
 data
+**/cmake-build-*/**
