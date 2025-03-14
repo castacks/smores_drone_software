@@ -85,7 +85,8 @@ void fastPreprocess(const Mat& source, Mat& output, double_t fraction, cv::Mat& 
   threshold(output, output, hpixelval-lpixelval, hpixelval-lpixelval, THRESH_TRUNC);
   output *= (256.0/(hpixelval - lpixelval));
   output.convertTo(output, CV_8U);
-  // cv::undistort(temp, output, cameraIntrinsics, cameraDistCoeffs);
+  cv::Mat temp = output.clone();
+  cv::undistort(temp, output, cameraIntrinsics, cameraDistCoeffs);
 }
 
 class ThermalPreprocessingNode : public rclcpp::Node
