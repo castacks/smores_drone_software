@@ -46,15 +46,15 @@ def generate_launch_description():
         executable="pclsub",
     )
 
-#    foxglove_launch = IncludeLaunchDescription(
-#        PathJoinSubstitution([
-#            FindPackageShare("foxglove_bridge"), "launch", "foxglove_bridge_launch.xml"
-#        ]),
-#        launch_arguments={
-#            "port": "8765", 
-#            "address": "0.0.0.0",
-#            }.items(),
-#    )
+    foxglove_launch = IncludeLaunchDescription(
+        PathJoinSubstitution([
+            FindPackageShare("foxglove_bridge"), "launch", "foxglove_bridge_launch.xml"
+        ]),
+        launch_arguments={
+            "port": "8765", 
+            "address": "0.0.0.0",
+            }.items(),
+    )
     return LaunchDescription(
         [
             # First instance of ThermalPubSub for thermal_left/image
@@ -83,9 +83,9 @@ def generate_launch_description():
             #    ),
             preproc_launch,
             mogeinf_left,
-#            mogeinf_right,
-#            madpose_solver,
+            mogeinf_right,
+            madpose_solver,
             #pcl_sub_test,
-#            foxglove_launch,
+            foxglove_launch,
         ]
     )
