@@ -1,10 +1,10 @@
 import rclpy
 import sys
 sys.path.append("/opt/conda/lib/python3.10/site-packages/")
-sys.path.append("/workspace/smores_drone_software/include/MoGe")
-sys.path.append("/workspace/smores_drone_software/include/madpose")
-sys.path.append("/workspace/smores_drone_software/include/PoseLib")
-sys.path.append("/workspace/smores_drone_software/include/ros2_numpy")
+sys.path.append(f"{os.get_cwd()}/include/MoGe")
+sys.path.append(f"{os.get_cwd()}/include/madpose")
+sys.path.append(f"{os.get_cwd()}/include/PoseLib")
+sys.path.append(f"{os.get_cwd()}/include/ros2_numpy")
 
 import cv2
 import numpy as np
