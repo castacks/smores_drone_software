@@ -4,8 +4,8 @@ import numpy as np
 import os, sys
 import pdb
 # sys.path.append("/opt/conda/lib/python3.10/site-packages/")
-sys.path.append("/external/smores_drone_software/include")
-sys.path.append("/external/smores_drone_software/include/MoGe")
+sys.path.append(f"{os.getcwd()}/include")
+sys.path.append(f"{os.getcwd()}/include/MoGe")
 from moge.model import MoGeModel
 from moge.utils.vis import colorize_depth
 from cam_interfaces.msg import MoGEOutput
