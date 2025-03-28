@@ -16,3 +16,9 @@
 [submodule "include/ros2_numpy"]
 	path = include/ros2_numpy
 	url = git@github.com:Box-Robotics/ros2_numpy.git
+[submodule "include/librealsense"]
+	path = include/librealsense
+	url = git@github.com:IntelRealSense/librealsense.git
+[submodule "include/vcpkg"]
+	path = include/vcpkg
+	url = https://github.com/Microsoft/vcpkg.git
