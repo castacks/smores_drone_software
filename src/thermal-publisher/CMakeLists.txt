@@ -14,7 +14,7 @@ find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 
-add_executable(thermal-publisher src/thermal-publisher.cpp)
+add_executable(thermal-publisher src/thermal-publisher.cpp src/rawBoson.cpp src/serial.cpp src/bytes.cpp)
 ament_target_dependencies(thermal-publisher rclcpp std_msgs sensor_msgs)
 
 target_include_directories(thermal-publisher PUBLIC

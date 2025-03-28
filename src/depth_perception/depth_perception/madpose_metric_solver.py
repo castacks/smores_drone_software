@@ -59,7 +59,7 @@ class MADPoseSolver(Node):
         self.est_config = madpose.EstimatorConfig()
         self.est_config.min_depth_constraint = True
         self.est_config.use_shift = True
-        self.est_config.ceres_num_threads = 16
+        self.est_config.ceres_num_threads = 12
 
         # get synced msg
         left_sub = message_filters.Subscriber(self, MoGEOutput, "thermal_left/moge")
@@ -185,8 +185,8 @@ class MADPoseSolver(Node):
         #np.savez(f"data/test/npy/{self.i}_npy.npy", point_cloud0, colors0)
 
         # Save the point clouds in PLY format
-        self.save_point_cloud(point_cloud0, colors0, f"data/test/pcltx/{self.i}_point_cloud_0.ply")
-        self.save_point_cloud(point_cloud1, colors1, f"data/test/pcltx/{self.i}_point_cloud_1.ply")
+        #self.save_point_cloud(point_cloud0, colors0, f"data/test/pcltx/{self.i}_point_cloud_0.ply")
+        #self.save_point_cloud(point_cloud1, colors1, f"data/test/pcltx/{self.i}_point_cloud_1.ply")
         self.i += 1
 
         pc20 = self.create_pc2_msg("thermal_left/optical_frame", point_cloud0, colors0)

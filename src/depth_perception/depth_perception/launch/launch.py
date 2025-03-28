@@ -86,6 +86,6 @@ def generate_launch_description():
             mogeinf_right,
             madpose_solver,
             #pcl_sub_test,
-            foxglove_launch,
+            #foxglove_launch,
         ]
     )

@@ -6,6 +6,7 @@
 #include <sensor_msgs/image_encodings.hpp>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
+#include "rawBoson.h"
 
 class ThermalPublisher : public rclcpp::Node {
 private:
@@ -14,11 +15,41 @@ private:
 
 public:
   ThermalPublisher() : Node("thermal_publisher") {
+    // std::vector<std::string> serialList = {"flir_boson_serial_34564", "flir_boson_serial_69703"};
+    // std::vector<int> syncList = {0, 0};
+    // int count = 0;
+    // for (std::string serialPort: serialList) {
+    //   char serialPortRoot[8192];
+    //   char *serialResult = realpath(("/dev/" + serialPort).c_str(), serialPortRoot);
+    //   set_sync_mode(syncList[count++], serialPortRoot);
+    //   int returnedSyncMode = get_sync_mode(serialPortRoot);
+    //   std::cout << "return sync mode: " << returnedSyncMode << std::endl;
+    //   switch (returnedSyncMode) {
+    //     case 0:
+    //       RCLCPP_INFO(this->get_logger(), " !!!!!!!!!!!!!!!returns mode setting result: disabled.");
+    //       break;
+    //
+    //     case 1:
+    //       std::cout << serialPort << " !!!!!!!!!!!!!!!!returns mode setting result: master." << std::endl;
+    //       break;
+    //
+    //     case 2:
+    //       std::cout << serialPort << " !!!!!!!!!!!!!!!!returns mode setting result: slave." << std::endl;
+    //       break;
+    //   }
+    // }
+
     this->declare_parameter("device_path", "/dev/flir_boson_video_34564");
     devicePath = this->get_parameter("device_path").as_string();
-
+    std::string serialPort = "flir_boson_serial_" + devicePath.substr(devicePath.length() - 5, 5);
+    RCLCPP_INFO(this->get_logger(), "Serial Path: %s", serialPort.c_str());
+    char serialPortRoot[8192];
+    char *serialResult = realpath(("/dev/" + serialPort).c_str(), serialPortRoot);
+    set_sync_mode(0, serialPortRoot);
+    int returnedSyncMode = get_sync_mode(serialPortRoot);
+    RCLCPP_INFO(this->get_logger(), "Serial Path: %s, returned sync mode: %d", serialPort.c_str(), returnedSyncMode);
     image_publisher_ = this->create_publisher<sensor_msgs::msg::Image>("thermal_image", 10);
-    RCLCPP_INFO(this->get_logger(), "Simple node has been initialized");
+
     auto fd = open(devicePath.c_str(), O_RDWR);
     if (fd < 0) {
       RCLCPP_FATAL(this->get_logger(), "Could not open device %s", devicePath.c_str());
@@ -51,7 +82,7 @@ public:
       RCLCPP_FATAL(this->get_logger(), "Could not set format for %s, error: %s", devicePath.c_str(), strerror(errno));
       rclcpp::shutdown();
     }
-    RCLCPP_INFO(this->get_logger(), "Opened and set-up camera %s", devicePath.c_str());
+    RCLCPP_DEBUG(this->get_logger(), "Opened and set-up camera %s", devicePath.c_str());
 
     struct v4l2_requestbuffers req = {};
     req.count = 4;
@@ -87,7 +118,8 @@ public:
       buffers[i].start = mmap(nullptr, buf.length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, buf.m.offset);
 
       if (buffers[i].start == MAP_FAILED) {
-        RCLCPP_FATAL(this->get_logger(), "Could not map buffer for %s, error: %s", devicePath.c_str(), strerror(errno));
+        RCLCPP_FATAL(this->get_logger(), "Could not map buffer for %s, error: %s", devicePath.c_str(),
+                     strerror(errno));
         rclcpp::shutdown();
       }
     }
@@ -114,12 +146,24 @@ public:
     buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     buf.memory = V4L2_MEMORY_MMAP;
 
+    double prev_v4l2_time = 0;
+    double prev_os_time = 0;
     while (true) {
       if (ioctl(fd, VIDIOC_DQBUF, &buf) < 0) {
         perror("Failed to dequeue buffer");
         break;
       }
-
+      auto osTime = this->now();
+      timeval v4l2Time = buf.timestamp;
+      double v4l2Seconds = static_cast<double>(v4l2Time.tv_sec) + static_cast<double>(v4l2Time.tv_usec) * 0.000001;
+      double v4l2_td = v4l2Seconds - prev_v4l2_time;
+      double os_td = osTime.seconds() - prev_os_time;
+      // RCLCPP_INFO(this->get_logger(),
+      //            "OS Time: %f (%f), v4l2 Time: %f (%f), sequence number: %d, timecode.frames: %d", osTime.seconds(),
+      //            os_td,
+      //            v4l2Seconds, v4l2_td, buf.sequence, buf.timecode.frames);
+      prev_os_time = osTime.seconds();
+      prev_v4l2_time = v4l2Seconds;
       sensor_msgs::msg::Image imgMessage;
       imgMessage.encoding = sensor_msgs::image_encodings::MONO16;
       imgMessage.width = 640;
@@ -130,7 +174,7 @@ public:
                              static_cast<char *>(buffers[buf.index].start) + buf.bytesused);
       imgMessage.header.stamp = this->now();
       this->image_publisher_->publish(imgMessage);
-      RCLCPP_INFO(this->get_logger(), "Received a buffer of size %d", buf.bytesused);
+      // RCLCPP_INFO(this->get_logger(), "Received a buffer of size %d", buf.bytesused);
 
       if (ioctl(fd, VIDIOC_QBUF, &buf) < 0) {
         perror("Failed to requeue buffer");

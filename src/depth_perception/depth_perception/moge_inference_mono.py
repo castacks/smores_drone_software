@@ -26,7 +26,7 @@ from rclpy.executors import MultiThreadedExecutor
 class MogeInference(Node):
 
     def __init__(self):
-        super().__init__('infer_depth_pub_sub')
+        super().__init__('moge_infer_depth')
 
         self.bridge = CvBridge()
 
