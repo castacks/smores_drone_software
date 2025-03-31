@@ -1,0 +1,11 @@
+#Accelerometer
+accelerometer_noise_density: 0.0485522367642568 
+accelerometer_random_walk: 0.024089797339945955 
+
+#Gyroscope
+gyroscope_noise_density: 0.0020301643408757807 
+gyroscope_random_walk: 1.2126279163623273e-05 
+
+rostopic: '/epson_imu/data' 
+update_rate: 200 
+
