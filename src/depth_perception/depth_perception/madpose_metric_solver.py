@@ -1,10 +1,11 @@
 import rclpy
-import sys
+import os, sys
+
+ws_dir = os.getenv("ROS_WS_DIR", "/workspace/smores_drone_software")
+
 sys.path.append("/opt/conda/lib/python3.10/site-packages/")
-sys.path.append("/workspace/smores_drone_software/include/MoGe")
-sys.path.append("/workspace/smores_drone_software/include/madpose")
-sys.path.append("/workspace/smores_drone_software/include/PoseLib")
-sys.path.append("/workspace/smores_drone_software/include/ros2_numpy")
+sys.path.append(f"{ws_dir}/include/MoGe")
+sys.path.append(f"{ws_dir}/include/ros2_numpy")
 
 import cv2
 import numpy as np
@@ -15,8 +16,7 @@ from cv_bridge import CvBridge
 from rclpy.node import Node
 from std_msgs.msg import Header
 from sensor_msgs.msg import Image, PointCloud2, PointField
-from cam_interfaces.msg import MoGEOutput
-import message_filters
+from cam_interfaces.msg import TSMoGEOutput
 import ros2_numpy
 
 # import helper method to visualize depth
@@ -24,7 +24,7 @@ from moge.utils.vis import colorize_depth
 
 # madpose imports
 import madpose
-from madpose.utils import bougnoux_numpy, compute_pose_error, get_depths
+from madpose.utils import bougnoux_numpy, get_depths
 import open3d as o3d
 
 class MADPoseSolver(Node):
@@ -35,8 +35,11 @@ class MADPoseSolver(Node):
         self.bridge = CvBridge()
 
         # load intrinscis
-        self.K0 = self.load_intrinsics("left")
-        self.K1 = self.load_intrinsics("right")
+        self.declare_parameter('left_cam_intrinsics_file', rclpy.Parameter.Type.STRING)
+        self.declare_parameter('right_cam_intrinsics_file', rclpy.Parameter.Type.STRING)
+        # self.K0 = self.load_intrinsics("left")
+        # self.K1 = self.load_intrinsics("right")
+        self.load_intrinsics_both()
 
         # Thresholds for reprojection and epipolar errors
         reproj_pix_thres = 16.0
@@ -61,17 +64,17 @@ class MADPoseSolver(Node):
         self.est_config.use_shift = True
         self.est_config.ceres_num_threads = 16
 
-        # get synced msg
-        left_sub = message_filters.Subscriber(self, MoGEOutput, "thermal_left/moge")
-        right_sub = message_filters.Subscriber(self, MoGEOutput, "thermal_right/moge")
+        self.subscription = self.create_subscription(
+            TSMoGEOutput,
+            "thermal/moge",
+            self.solve_metric,
+            1,
+        )
 
-        ats = message_filters.ApproximateTimeSynchronizer([left_sub, right_sub], queue_size=10, slop=0.1)
-        ats.registerCallback(self.solve_metric)
-
-        self.metricdepthmap0_publisher = self.create_publisher(Image, "thermal/madpose/depthmap_left", 10)
-        self.metricdepthmap1_publisher = self.create_publisher(Image, "thermal/madpose/depthmap_right", 10)
-        self.ptcl0_publisher = self.create_publisher(PointCloud2, "thermal/madpose/pointcloud_left", 10)
-        self.ptcl1_publisher = self.create_publisher(PointCloud2, "thermal/madpose/pointcloud_right", 10)
+        self.metricdepthmap0_publisher = self.create_publisher(Image, "thermal_left/madpose/depthmap", 10)
+        self.metricdepthmap1_publisher = self.create_publisher(Image, "thermal_right/madpose/depthmap", 10)
+        self.ptcl0_publisher = self.create_publisher(PointCloud2, "thermal_left/madpose/pointcloud", 10)
+        self.ptcl1_publisher = self.create_publisher(PointCloud2, "thermal_right/madpose/pointcloud", 10)
 
         self.i = 0
 
@@ -79,9 +82,13 @@ class MADPoseSolver(Node):
         self.get_logger().info(f'{self.i}: Received synchronized messages left ={msg_left.header.stamp}, right={msg_right.header.stamp}')
         self.i += 1
 
-    def load_intrinsics(self, cam):
-        # TODO dyanmically populate file
-        with open(f'/workspace/smores_drone_software/calibrations/ORDv1_Smores_Feb2025/{cam}_thermal.yaml', 'r') as file:
+    def load_intrinsics_both(self):
+        self.K0 = self._load_intrinsics("left")
+        self.K1 = self._load_intrinsics("right")
+
+    def _load_intrinsics(self, cam):
+        intrinsics_file = self.get_parameter(f'{cam}_cam_intrinsics_file').get_parameter_value().string_value
+        with open(intrinsics_file, 'r') as file:
             cal = yaml.safe_load(file)
 
         intrinsics = cal["cam0"]["intrinsics"]
@@ -120,18 +127,17 @@ class MADPoseSolver(Node):
 
         return mkpts0, mkpts1
 
-
-    def solve_metric(self, msg_left, msg_right):
+    def solve_metric(self, msg):
         # Read the image pair
-        image0 = self.bridge.imgmsg_to_cv2(msg_left.preproc, msg_left.preproc.encoding)
-        image1 = self.bridge.imgmsg_to_cv2(msg_right.preproc, msg_right.preproc.encoding)
+        image0 = self.bridge.imgmsg_to_cv2(msg.left_image, msg.left_image.encoding)
+        image1 = self.bridge.imgmsg_to_cv2(msg.right_image, msg.right_image.encoding)
 
         # Run keypoint detector (SIFT)
         mkpts0, mkpts1 = self.get_matched_keypoints(image0, image1)
 
         # read depth map
-        depth_map0 = np.array(msg_left.depth).reshape((msg_left.preproc.height, msg_left.preproc.width))
-        depth_map1 = np.array(msg_right.depth).reshape((msg_right.preproc.height, msg_right.preproc.width))
+        depth_map0 = np.array(msg.left_depth).reshape((msg.left_image.height, msg.left_image.width))
+        depth_map1 = np.array(msg.right_depth).reshape((msg.right_image.height, msg.right_image.width))
 
         # Query the depth priors of the keypoints
         depth0 = get_depths(image0, depth_map0, mkpts0)
@@ -153,7 +159,7 @@ class MADPoseSolver(Node):
         # scale and offsets of the affine corrected depth maps
         s_est, o0_est, o1_est = pose.scale, pose.offset0, pose.offset1
 
-        depth_map0_world = depth_map0 + o0_est
+        depth_map0_world = s_est * (depth_map0 + o0_est)
         depth_map1_world = s_est * (depth_map1 + o1_est)
 
         processed_depthmap0 = cv2.cvtColor(colorize_depth(depth_map0_world), cv2.COLOR_RGB2BGR) # (512, 640, 3)
@@ -185,8 +191,8 @@ class MADPoseSolver(Node):
         #np.savez(f"data/test/npy/{self.i}_npy.npy", point_cloud0, colors0)
 
         # Save the point clouds in PLY format
-        self.save_point_cloud(point_cloud0, colors0, f"data/test/pcltx/{self.i}_point_cloud_0.ply")
-        self.save_point_cloud(point_cloud1, colors1, f"data/test/pcltx/{self.i}_point_cloud_1.ply")
+        self.save_point_cloud(point_cloud0, colors0, f"data/test_pcl/{self.i}_point_cloud_0.ply")
+        self.save_point_cloud(point_cloud1, colors1, f"data/test_pcl/{self.i}_point_cloud_1.ply")
         self.i += 1
 
         pc20 = self.create_pc2_msg("thermal_left/optical_frame", point_cloud0, colors0)

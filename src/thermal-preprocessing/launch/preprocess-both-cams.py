@@ -1,3 +1,6 @@
+import os
+ws_dir = os.getenv("ROS_WS_DIR", "/workspace/smores_drone_software")
+
 from launch import LaunchDescription
 from launch_ros.actions import Node
 
@@ -10,7 +13,7 @@ def generate_launch_description():
             name='thermal_left_preprocessor',
             parameters=[
                     {
-                        "camIntrinsicsFile": "/workspace/smores_drone_software/calibrations/ORDv1_Smores_Feb2025/left_thermal.yaml",
+                        "camIntrinsicsFile": f"{ws_dir}/calibrations/ORDv1_Smores_Feb2025/left_thermal.yaml",
                         "cam": "left"
                     }
                 ]
@@ -22,7 +25,7 @@ def generate_launch_description():
             name='thermal_right_preprocessor',
             parameters=[
                     {
-                        "camIntrinsicsFile": "/workspace/smores_drone_software/calibrations/ORDv1_Smores_Feb2025/right_thermal.yaml", 
+                        "camIntrinsicsFile": f"{ws_dir}/calibrations/ORDv1_Smores_Feb2025/right_thermal.yaml", 
                         "cam": "right"
                     }
                 ]

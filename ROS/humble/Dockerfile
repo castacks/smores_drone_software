@@ -90,7 +90,8 @@ COPY pip-requirements.txt /workspace
 RUN pip3 install -r pip-requirements.txt && \
     pip3 install git+https://github.com/EasternJournalist/utils3d.git#egg=utils3d && \
     chmod +x /ros_entrypoint.sh && \
-    echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+    echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc && \
+    echo "export ROS_WS_DIR=/workspace/smores_drone_software" >> ~/.bashrc
     
 ENTRYPOINT ["/ros_entrypoint.sh"]
 CMD ["bash"]

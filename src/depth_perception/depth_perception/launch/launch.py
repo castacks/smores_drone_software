@@ -1,3 +1,6 @@
+import os
+ws_dir = os.getenv("ROS_WS_DIR", "/workspace/smores_drone_software")
+
 from launch import LaunchDescription
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
@@ -13,32 +16,21 @@ def generate_launch_description():
         ])
     )
 
-    mogeinf_left = Node(
+    mogeinf = Node(
         package="depth_perception",  
-        executable="mono_pub_sub",  
-        namespace='thermal_left',
-        remappings=[
-            ('thermal/image', 'preprocd_image'),
-            ('thermal/moge/depthmap', 'moge/depthmap'),
-            ('thermal/moge', 'moge')
-        ],
+        executable="moge_infer_depth",  
         output="screen",
-    )
-    
-    mogeinf_right = Node(
-        package="depth_perception",  
-        executable="mono_pub_sub",  
-        namespace='thermal_right',
-        remappings=[
-            ('thermal/image', 'preprocd_image'),
-            ('thermal/moge/depthmap', 'moge/depthmap'),
-            ('thermal/moge', 'moge')
-        ],
     )
 
     madpose_solver = Node(
         package="depth_perception", 
-        executable="madpose",  
+        executable="madpose",
+        parameters=[
+                    {
+                        "left_cam_intrinsics_file": f"{ws_dir}/calibrations/ORDv1_Smores_Feb2025/left_thermal.yaml",
+                        "right_cam_intrinsics_file": f"{ws_dir}/calibrations/ORDv1_Smores_Feb2025/right_thermal.yaml",
+                    }
+                ]
     )
 
     pcl_sub_test = Node(
@@ -55,37 +47,13 @@ def generate_launch_description():
             "address": "0.0.0.0",
             }.items(),
     )
+
     return LaunchDescription(
         [
-            # First instance of ThermalPubSub for thermal_left/image
-            #    Node(
-            #        package='depth_perception',  # Replace with your package name
-            #        executable='thermal_pub_sub',  # Replace with your node executable name
-            #        name='thermal_pub_sub_left',
-            #        # namespace='thermal_preprocessed',
-            #        remappings=[
-            #            ('thermal/image', 'thermal_left/image'),
-            #            ('thermal_preprocessed/image', 'thermal_preprocessed_left/image')
-            #        ],
-            #        output='screen'
-            #    ),
-            #    # Second instance of ThermalPubSub for thermal_right/image
-            #    Node(
-            #        package='depth_perception',  # Replace with your package name
-            #        executable='thermal_pub_sub',  # Replace with your node executable name
-            #        name='thermal_pub_sub_right',
-            #        # namespace='thermal_preprrocessed',
-            #        remappings=[
-            #            ('thermal/image', 'thermal_right/image'),  # Remap input topic
-            #            ('thermal_preprocessed/image', 'thermal_preprocessed_right/image')  # Remap output topic
-            #        ],
-            #        output='screen'
-            #    ),
             preproc_launch,
-            mogeinf_left,
-            mogeinf_right,
-            madpose_solver,
+            mogeinf,
+            #madpose_solver,
             #pcl_sub_test,
-            foxglove_launch,
+            #foxglove_launch,
         ]
     )
