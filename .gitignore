@@ -8,3 +8,7 @@ install
 log
 no-push
 data
+
+src/MAC-VO-ROS2/MACVO_ROS2/Model/*
+*.pth
+*.pkl

@@ -16,3 +16,6 @@
 [submodule "include/ros2_numpy"]
 	path = include/ros2_numpy
 	url = git@github.com:Box-Robotics/ros2_numpy.git
+[submodule "src/MAC-VO-ROS2/MACVO_ROS2/src"]
+	path = src/MAC-VO-ROS2/MACVO_ROS2/src
+	url = git@github.com:MAC-VO/MAC-VO.git
