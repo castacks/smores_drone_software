@@ -1,7 +1,7 @@
 import rclpy
 import os, sys
 
-ws_dir = os.getenv("ROS_WS_DIR", "/workspace/smores_drone_software")
+ws_dir = os.getenv("ROS_WS_DIR", "/external/smores_drone_software")
 
 sys.path.append("/opt/conda/lib/python3.10/site-packages/")
 sys.path.append(f"{ws_dir}/include/MoGe")
@@ -231,7 +231,7 @@ class MADPoseSolver(Node):
         points = points.reshape(-1, 3)
         colors = colors.reshape(-1, 3)
 
-        merged_colors = self.merge_rgb(colors)
+        merged_colors = self._merge_rgb(colors)
 
         dtype=[
             ('x', np.float32),
@@ -249,7 +249,7 @@ class MADPoseSolver(Node):
         msg = ros2_numpy.msgify(PointCloud2, data, frame_id=frame_id)
         return msg
 
-    def merge_rgb(self, colors: np.ndarray):
+    def _merge_rgb(self, colors: np.ndarray):
         r = np.asarray(colors[:, 0], dtype=np.uint32)
         g = np.asarray(colors[:, 1], dtype=np.uint32)
         b = np.asarray(colors[:, 2], dtype=np.uint32)

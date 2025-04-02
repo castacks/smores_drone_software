@@ -1,5 +1,5 @@
 import os
-ws_dir = os.getenv("ROS_WS_DIR", "/workspace/smores_drone_software")
+ws_dir = os.getenv("ROS_WS_DIR", "/external/smores_drone_software")
 
 from launch import LaunchDescription
 from launch_ros.actions import Node
