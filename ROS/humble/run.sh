@@ -11,8 +11,8 @@ podman run -it \
 	-e DISPLAY=$DISPLAY \
 	--gpus all \
 	--net host \
-	--name smoresdev \
-      	localhost/triangluate:latest tail -f /dev/null
+	--name smores_dev_all \
+      	localhost/smores_dev:latest tail -f /dev/null
 	# --name smores_dev
       	# localhost/smores_dev:latest /bin/bash
 

@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y software-properties-common curl locales
     curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null && \
     apt-get update && \
-    apt-get install -y ros-humble-desktop-full ros-humble-foxglove-bridge x11-apps libeigen3-dev libceres-dev git \
+    apt-get install -y ros-humble-desktop-full ros-humble-cv-bridge ros-humble-foxglove-bridge x11-apps libeigen3-dev libceres-dev git \
     build-essential ros-dev-tools unzip ninja-build libgtk2.0-dev pkg-config
 
 RUN mkdir /opencv-build-temp && cd /opencv-build-temp && \
@@ -70,15 +70,11 @@ RUN mkdir -p /root/.ssh && \
 
 ############################ UNCOMMENT ABOVE FOR MAST3R #######################################
 
-
-# ############################ UNCOMMENT BELOW FOR MoGe ###########################w############
-# ############################ UNCOMMENT ABOVE FOR MoGe #######################################
-
-# ############################ UNCOMMENT BELOW FOR MadPose #######################################
-RUN apt-get remove -y python3-blinker && \
-    cd /workdir && \
-    wget -O model.pt https://huggingface.co/Ruicheng/moge-vitl/resolve/main/model.pt?download=true
-# ############################ UNCOMMENT ABOVE FOR MadPose #######################################
+# ############################ UNCOMMENT BELOW FOR MOGE + MADPOSE #######################################
+RUN apt-get remove -y python3-blinker 
+    # cd /workspace && \
+    # wget -O model.pt https://huggingface.co/Ruicheng/moge-vitl/resolve/main/model.pt?download=true
+# ############################ UNCOMMENT ABOVE FOR MOGE + MADPOSE #######################################
 
 # RUN git clone https://github.com/jenicek/asmk /asmk
 # RUN pip install cython faiss-gpu
@@ -92,6 +88,7 @@ RUN apt-get remove -y python3-blinker && \
 COPY ROS/humble/ros_entrypoint.sh /
 COPY pip-requirements.txt /workspace
 RUN pip3 install -r pip-requirements.txt && \
+    pip3 install git+https://github.com/EasternJournalist/utils3d.git#egg=utils3d && \
     chmod +x /ros_entrypoint.sh && \
     echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
     
