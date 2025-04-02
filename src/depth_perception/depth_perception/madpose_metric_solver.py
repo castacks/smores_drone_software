@@ -264,6 +264,8 @@ class MADPoseSolver(Node):
         # Save the point cloud to a file
         o3d.io.write_point_cloud(filename, pcd)
 
+        self.get_logger().info(f"Saved PLY: {filename}")
+
         # o3d.visualization.draw_plotly([pcd])
 
 def main(args=None):
