@@ -1,0 +1,9 @@
+[submodule "src/realsense-ros"]
+	path = src/realsense-ros
+	url = https://github.com/IntelRealSense/realsense-ros.git
+[submodule "include/vcpkg"]
+	path = include/vcpkg
+	url = git@github.com:microsoft/vcpkg.git
+[submodule "include/librealsense"]
+	path = include/librealsense
+	url = git@github.com:IntelRealSense/librealsense.git

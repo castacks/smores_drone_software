@@ -1,3 +1,0 @@
-SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", \
-    ACTION=="add", SYMLINK+="mmpug/epson_imu", \
-    RUN+="/usr/local/bin/update_epson_latency_timer.bash ttyUSB%n"
