@@ -81,7 +81,7 @@ def generate_launch_description():
             #        ],
             #        output='screen'
             #    ),
-            preproc_launch,
+            #preproc_launch,
             mogeinf_left,
             mogeinf_right,
             madpose_solver,
