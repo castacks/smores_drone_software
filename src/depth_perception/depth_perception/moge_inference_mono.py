@@ -4,8 +4,9 @@ import numpy as np
 import os, sys
 import pdb
 # sys.path.append("/opt/conda/lib/python3.10/site-packages/")
-sys.path.append(f"/workspace/smores_drone_software/include")
-sys.path.append(f"/workspace/smores_drone_software/include/MoGe")
+ws_dir = os.getenv("ROS_WS_DIR", "/external/smores_drone_software")
+sys.path.append(f"{ws_dir}/include")
+sys.path.append(f"{ws_dir}/include/MoGe")
 from moge.model.v1 import MoGeModel
 from moge.utils.vis import colorize_depth
 from cam_interfaces.msg import MoGEOutput
@@ -26,7 +27,7 @@ from rclpy.executors import MultiThreadedExecutor
 class MogeInference(Node):
 
     def __init__(self):
-        super().__init__('infer_depth_pub_sub')
+        super().__init__('moge_infer_depth')
 
         self.bridge = CvBridge()
 
