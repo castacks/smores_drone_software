@@ -4,8 +4,9 @@ import numpy as np
 import os, sys
 import pdb
 # sys.path.append("/opt/conda/lib/python3.10/site-packages/")
-sys.path.append("/external/smores_drone_software/include")
-sys.path.append("/external/smores_drone_software/include/MoGe")
+ws_dir = os.getenv("ROS_WS_DIR", "/external/smores_drone_software")
+sys.path.append(f"{ws_dir}/include")
+sys.path.append(f"{ws_dir}/include/MoGe")
 from moge.model.v1 import MoGeModel
 from moge.utils.vis import colorize_depth
 from cam_interfaces.msg import MoGEOutput
@@ -36,7 +37,8 @@ class MogeInference(Node):
             self.device = torch.device("cuda")
         else:
             self.device = torch.device("cpu")
-        self.model = MoGeModel.from_pretrained("/external/smores_drone_software/include/MoGe/moge/model/weights/model.pt").to(self.device)
+        self.model = MoGeModel.from_pretrained(f"{ws_dir}/include/MoGe/moge/model/weights/model.pt").to(self.device)
+
 
         # TODO: Update to sync with the cameras directly
         self.subscription = self.create_subscription(
@@ -51,6 +53,8 @@ class MogeInference(Node):
         self.moge_publisher = self.create_publisher(MoGEOutput, "thermal/moge", 10)
 
         self.i = 0
+
+        self.get_logger().info(f"MogeInferenceMono.py: Initialized MogeInference node successfully")
 
     def preproc(self, image):
         # Apply histogram filtering, CLAHE, Bilateral Filtering

@@ -1,10 +1,11 @@
 import rclpy
-import sys
+import os, sys
+
+ws_dir = os.getenv("ROS_WS_DIR", "/external/smores_drone_software")
+
 sys.path.append("/opt/conda/lib/python3.10/site-packages/")
-sys.path.append("/external/smores_drone_software/include/MoGe")
-sys.path.append("/external/smores_drone_software/include/madpose")
-sys.path.append("/external/smores_drone_software/include/PoseLib")
-sys.path.append("/external/smores_drone_software/include/ros2_numpy")
+sys.path.append(f"{ws_dir}/include/MoGe")
+sys.path.append(f"{ws_dir}/include/ros2_numpy")
 
 import cv2
 import numpy as np
@@ -35,8 +36,9 @@ class MADPoseSolver(Node):
         self.bridge = CvBridge()
 
         # load intrinscis
-        self.K0 = self.load_intrinsics("left")
-        self.K1 = self.load_intrinsics("right")
+        self.declare_parameter('left_cam_intrinsics_file', rclpy.Parameter.Type.STRING)
+        self.declare_parameter('right_cam_intrinsics_file', rclpy.Parameter.Type.STRING)
+        self.load_intrinsics_both()
 
         # Thresholds for reprojection and epipolar errors
         reproj_pix_thres = 16.0
@@ -79,9 +81,13 @@ class MADPoseSolver(Node):
         self.get_logger().info(f'{self.i}: Received synchronized messages left ={msg_left.header.stamp}, right={msg_right.header.stamp}')
         self.i += 1
 
-    def load_intrinsics(self, cam):
-        # TODO dyanmically populate file
-        with open(f'/external/smores_drone_software/calibrations/ORDv1_Smores_Feb2025/{cam}_thermal.yaml', 'r') as file:
+    def load_intrinsics_both(self):
+        self.K0 = self._load_intrinsics("left")
+        self.K1 = self._load_intrinsics("right")
+
+    def _load_intrinsics(self, cam):
+        intrinsics_file = self.get_parameter(f'{cam}_cam_intrinsics_file').value
+        with open(intrinsics_file, 'r') as file:
             cal = yaml.safe_load(file)
 
         intrinsics = cal["cam0"]["intrinsics"]
@@ -153,7 +159,7 @@ class MADPoseSolver(Node):
         # scale and offsets of the affine corrected depth maps
         s_est, o0_est, o1_est = pose.scale, pose.offset0, pose.offset1
 
-        depth_map0_world = depth_map0 + o0_est
+        depth_map0_world = s_est * (depth_map0 + o0_est)
         depth_map1_world = s_est * (depth_map1 + o1_est)
 
         processed_depthmap0 = cv2.cvtColor(colorize_depth(depth_map0_world), cv2.COLOR_RGB2BGR) # (512, 640, 3)
@@ -263,6 +269,8 @@ class MADPoseSolver(Node):
 
         # Save the point cloud to a file
         o3d.io.write_point_cloud(filename, pcd)
+
+        self.get_logger().info(f"Saved PLY: {filename}")
 
         # o3d.visualization.draw_plotly([pcd])
 

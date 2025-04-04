@@ -1,3 +1,6 @@
+import os
+ws_dir = os.getenv("ROS_WS_DIR", "/external/smores_drone_software")
+
 from launch import LaunchDescription
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
@@ -39,6 +42,12 @@ def generate_launch_description():
     madpose_solver = Node(
         package="depth_perception", 
         executable="madpose",  
+        parameters=[
+                    {
+                        "left_cam_intrinsics_file": f"{ws_dir}/calibrations/ORDv1_Smores_Feb2025/left_thermal.yaml",
+                        "right_cam_intrinsics_file": f"{ws_dir}/calibrations/ORDv1_Smores_Feb2025/right_thermal.yaml",
+                    }
+                ]
     )
 
     pcl_sub_test = Node(
@@ -57,7 +66,7 @@ def generate_launch_description():
     )
     return LaunchDescription(
         [
-            preproc_launch,
+            #preproc_launch,
             mogeinf_left,
             mogeinf_right,
             madpose_solver,
