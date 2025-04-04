@@ -16,29 +16,30 @@ RUN apt-get update && apt-get install -y software-properties-common curl locales
     apt-get install -y ros-humble-desktop-full ros-humble-foxglove-bridge x11-apps libeigen3-dev libceres-dev git \
     build-essential ros-dev-tools unzip ninja-build libgtk2.0-dev pkg-config
 
-RUN mkdir /opencv-build-temp && cd /opencv-build-temp && \
-    wget -O /opencv-build-temp/opencv.zip https://github.com/opencv/opencv/archive/4.x.zip && \
-    wget -O /opencv-build-temp/opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/4.x.zip && \
-    unzip /opencv-build-temp/opencv.zip && \
-    unzip /opencv-build-temp/opencv_contrib.zip && \
-    mkdir -p /opencv-build-temp/build && cd /opencv-build-temp/build && \
-    cmake -DOPENCV_EXTRA_MODULES_PATH=../opencv_contrib-4.x/modules ../opencv-4.x -GNinja \
-    -D CMAKE_BUILD_TYPE=Release \
-    -D BUILD_EXAMPLES=OFF  \
-    -D BUILD_DOCS=OFF \
-    -D BUILD_PERF_TESTS=OFF \
-    -D BUILD_TESTS=OFF \
-    -D CMAKE_BUILD_TYPE=Release \
-    -D WITH_CUDA=OFF \
-    -D WITH_GTK=ON \
-    -D WITH_GTK3=ON \
-    -D WITH_GTK_2_X=OFF \
-    -D BUILD_QT=ON \
-    -D BUILD_JAVA=OFF \
-    -DENABLE_PRECOMPILED_HEADERS=OFF \
-    -D BUILD_opencv_python3=ON && \
-    ninja install && \
-    cd / && rm -rf /opencv-build-temp/
+# RUN mkdir /opencv-build-temp && cd /opencv-build-temp && \
+#    wget -O /opencv-build-temp/opencv.zip https://github.com/opencv/opencv/archive/4.x.zip && \
+#    wget -O /opencv-build-temp/opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/4.x.zip && \
+#    unzip /opencv-build-temp/opencv.zip && \
+#    unzip /opencv-build-temp/opencv_contrib.zip && \
+#    mkdir -p /opencv-build-temp/build && cd /opencv-build-temp/build && \
+#    cmake -DOPENCV_EXTRA_MODULES_PATH=../opencv_contrib-4.x/modules ../opencv-4.x -GNinja \
+#    -D CMAKE_BUILD_TYPE=Release \
+#    -D BUILD_EXAMPLES=OFF  \
+#    -D BUILD_DOCS=OFF \
+#    -D BUILD_PERF_TESTS=OFF \
+#    -D BUILD_TESTS=OFF \
+#    -D CMAKE_BUILD_TYPE=Release \
+#    -D WITH_CUDA=OFF \
+#    -D WITH_GTK=ON \
+#    -D WITH_GTK3=ON \
+#    -D WITH_GTK_2_X=OFF \
+#    -D BUILD_QT=ON \
+#    -D BUILD_JAVA=OFF \
+#    -DENABLE_PRECOMPILED_HEADERS=OFF \
+#    -DENABLE_MPI=OFF \
+#    -D BUILD_opencv_python3=ON && \
+#    ninja install && \
+#    cd / && rm -rf /opencv-build-temp/
 
 RUN mkdir -p /root/.ssh && \
         chmod 700 /root/.ssh  && \
@@ -76,7 +77,7 @@ RUN mkdir -p /root/.ssh && \
 
 # ############################ UNCOMMENT BELOW FOR MadPose #######################################
 RUN apt-get remove -y python3-blinker && \
-    cd /workdir && \
+    cd /workspace && \
     wget -O model.pt https://huggingface.co/Ruicheng/moge-vitl/resolve/main/model.pt?download=true
 # ############################ UNCOMMENT ABOVE FOR MadPose #######################################
 

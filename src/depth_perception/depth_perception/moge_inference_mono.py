@@ -37,8 +37,12 @@ class MogeInference(Node):
             self.device = torch.device("cuda")
         else:
             self.device = torch.device("cpu")
+<<<<<<< HEAD
         self.model = MoGeModel.from_pretrained(f"{ws_dir}/include/MoGe/moge/model/weights/model.pt").to(self.device)
 
+=======
+        self.model = MoGeModel.from_pretrained("/external/smores_drone_software/include/MoGe/moge/model/weights/model.pt").to(self.device)
+>>>>>>> orin
 
         # TODO: Update to sync with the cameras directly
         self.subscription = self.create_subscription(
@@ -49,16 +53,8 @@ class MogeInference(Node):
         )
         self.subscription  # prevent unused variable warning
 
-        #self.preproc_publisher = self.create_publisher(Image, "thermal/preproc", 10) # TODO remove
         self.depthmap_publisher = self.create_publisher(Image, "thermal/moge/depthmap", 10)
-
         self.moge_publisher = self.create_publisher(MoGEOutput, "thermal/moge", 10)
-
-        # self.pcl_publisher = self.create_publisher(PointCloud, "moge/pcl", 10)
-
-        # self.intrinsics_publisher = self.create_publisher(
-        #     Float32MultiArray, "moge/intrinsics", 10
-        # )
 
         self.i = 0
 
@@ -77,9 +73,9 @@ class MogeInference(Node):
     def infer_depth(self, image: Image):
         """
         Description: Preprocessed raw thermal image by applying outlier filtering, histogram equalization, bilateral filtering (edge-aware smoothing)\n
-        Topic: thermal_left/image\n
-        Input: image -> sensor_msgs.msg.Image\n
-        Output: cv_img -> cv2.CV_16UC1\n
+        Topic: thermal_left/image
+        Input: image -> sensor_msgs.msg.Image
+        Output: cv_img -> cv2.CV_16UC1
         """
 
         """ TODO
@@ -95,9 +91,11 @@ class MogeInference(Node):
         #cv2_img = self.preproc(cv2_img)
 
         input_img = cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB)
+
+        # convert to tensor
         input_tensor = torch.tensor(input_img / 255, dtype=torch.float32, device=self.device).permute(2, 0, 1)
         
-        output = self.model.infer(input_tensor)
+        output = self.model.infer(input_tensor, fov_x=95)
         depth = output["depth"].cpu().numpy()
         points = output["points"].cpu().numpy()
         intrinsics = output["intrinsics"].cpu().numpy()

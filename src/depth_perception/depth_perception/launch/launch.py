@@ -18,7 +18,7 @@ def generate_launch_description():
 
     mogeinf_left = Node(
         package="depth_perception",  
-        executable="mono_pub_sub",  
+        executable="moge_infer_depth",  
         namespace='thermal_left',
         remappings=[
             ('thermal/image', 'preprocd_image'),
@@ -30,7 +30,7 @@ def generate_launch_description():
     
     mogeinf_right = Node(
         package="depth_perception",  
-        executable="mono_pub_sub",  
+        executable="moge_infer_depth",  
         namespace='thermal_right',
         remappings=[
             ('thermal/image', 'preprocd_image'),

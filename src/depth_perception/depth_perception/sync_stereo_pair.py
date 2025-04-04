@@ -50,6 +50,9 @@ left_map_x, left_map_y = cv2.initUndistortRectifyMap(
 right_map_x, right_map_y = cv2.initUndistortRectifyMap(
     K2, D2, R2, P2, image_size, cv2.CV_32FC1)
 
+left_noise = np.load("/external/smores_drone_software/left.npy")
+right_noise = np.load("/external/smores_drone_software/right.npy")
+print(left_noise.shape)
 num_disparities = 16 * 3  # Must be divisible by 16
 block_size = 21  # Must be odd
 stereo = cv2.StereoBM_create(numDisparities=num_disparities, blockSize=block_size)
@@ -90,8 +93,10 @@ class SyncDepthPair(Node):
         img_left = self.bridge.imgmsg_to_cv2(msg_left, msg_left.encoding)
         img_right = self.bridge.imgmsg_to_cv2(msg_right, msg_right.encoding)
         left_rect = cv2.remap(img_left, left_map_x, left_map_y, cv2.INTER_LINEAR)
+        # left_rect = left_rect - left_noise
         right_rect = cv2.remap(img_right, right_map_x, right_map_y, cv2.INTER_LINEAR)
-        p1, p99 = np.percentile(np.asarray([left_rect, right_rect]), [10, 90])
+        # right_rect = right_rect - right_noise
+        p1, p99 = np.percentile(np.asarray([left_rect, right_rect]), [1, 99])
         img_left_clipped = np.clip(left_rect, p1, p99)
         img_right_clipped = np.clip(right_rect, p1, p99)
         img_left_u8 = cv2.normalize(
