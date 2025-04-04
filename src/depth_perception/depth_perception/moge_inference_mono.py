@@ -37,7 +37,7 @@ class MogeInference(Node):
             self.device = torch.device("cuda")
         else:
             self.device = torch.device("cpu")
-        self.model = MoGeModel.from_pretrained("/workspace/smores_drone_software/include/MoGe/moge/model/weights/model.pt").to(self.device)
+        self.model = MoGeModel.from_pretrained(f"{ws_dir}/include/MoGe/moge/model/weights/model.pt").to(self.device)
 
 
         # TODO: Update to sync with the cameras directly
@@ -61,6 +61,8 @@ class MogeInference(Node):
         # )
 
         self.i = 0
+
+        self.get_logger().info(f"MogeInferenceMono.py: Initialized MogeInference node successfully")
 
     def preproc(self, image):
         # Apply histogram filtering, CLAHE, Bilateral Filtering

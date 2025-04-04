@@ -1,5 +1,5 @@
 import os
-ws_dir = os.getenv("ROS_WS_DIR", "/workspace/smores_drone_software")
+ws_dir = os.getenv("ROS_WS_DIR", "/external/smores_drone_software")
 
 from launch import LaunchDescription
 from launch_ros.actions import Node
@@ -66,7 +66,7 @@ def generate_launch_description():
     )
     return LaunchDescription(
         [
-            preproc_launch,
+            #preproc_launch,
             mogeinf_left,
             mogeinf_right,
             madpose_solver,
