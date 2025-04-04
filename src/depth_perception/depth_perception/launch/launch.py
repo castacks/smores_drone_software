@@ -15,7 +15,7 @@ def generate_launch_description():
 
     mogeinf_left = Node(
         package="depth_perception",  
-        executable="mono_pub_sub",  
+        executable="moge_infer_depth",  
         namespace='thermal_left',
         remappings=[
             ('thermal/image', 'preprocd_image'),
@@ -27,7 +27,7 @@ def generate_launch_description():
     
     mogeinf_right = Node(
         package="depth_perception",  
-        executable="mono_pub_sub",  
+        executable="moge_infer_depth",  
         namespace='thermal_right',
         remappings=[
             ('thermal/image', 'preprocd_image'),
@@ -57,31 +57,7 @@ def generate_launch_description():
     )
     return LaunchDescription(
         [
-            # First instance of ThermalPubSub for thermal_left/image
-            #    Node(
-            #        package='depth_perception',  # Replace with your package name
-            #        executable='thermal_pub_sub',  # Replace with your node executable name
-            #        name='thermal_pub_sub_left',
-            #        # namespace='thermal_preprocessed',
-            #        remappings=[
-            #            ('thermal/image', 'thermal_left/image'),
-            #            ('thermal_preprocessed/image', 'thermal_preprocessed_left/image')
-            #        ],
-            #        output='screen'
-            #    ),
-            #    # Second instance of ThermalPubSub for thermal_right/image
-            #    Node(
-            #        package='depth_perception',  # Replace with your package name
-            #        executable='thermal_pub_sub',  # Replace with your node executable name
-            #        name='thermal_pub_sub_right',
-            #        # namespace='thermal_preprrocessed',
-            #        remappings=[
-            #            ('thermal/image', 'thermal_right/image'),  # Remap input topic
-            #            ('thermal_preprocessed/image', 'thermal_preprocessed_right/image')  # Remap output topic
-            #        ],
-            #        output='screen'
-            #    ),
-            #preproc_launch,
+            preproc_launch,
             mogeinf_left,
             mogeinf_right,
             madpose_solver,

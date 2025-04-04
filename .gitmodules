@@ -10,6 +10,3 @@
 [submodule "include/ros2_numpy"]
 	path = include/ros2_numpy
 	url = git@github.com:Box-Robotics/ros2_numpy.git
-[submodule "smores_drone_drivers"]
-	path = smores_drone_drivers
-	url = git@github.com:castacks/smores_drone_drivers.git

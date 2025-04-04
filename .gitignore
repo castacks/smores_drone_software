@@ -9,3 +9,6 @@ log
 no-push
 data
 **/cmake-build-*/**
+
+*.npy
+*.pt
