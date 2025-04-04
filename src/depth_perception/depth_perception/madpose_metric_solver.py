@@ -86,7 +86,7 @@ class MADPoseSolver(Node):
         self.K1 = self._load_intrinsics("right")
 
     def _load_intrinsics(self, cam):
-        intrinsics_file = self.get_parameter(f'{cam}_cam_intrinsics_file').get_parameter_value().string_value
+        intrinsics_file = self.get_parameter(f'{cam}_cam_intrinsics_file').value
         with open(intrinsics_file, 'r') as file:
             cal = yaml.safe_load(file)
 
