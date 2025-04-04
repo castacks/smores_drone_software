@@ -25,7 +25,7 @@ setup(
         'console_scripts': [
             # 'thermal_pub_sub = depth_perception.publish_thermals:main', # executable_name = package_name.file_name:entry_function
             'stereobm = depth_perception.sync_stereo_pair:main',
-            'mono_pub_sub = depth_perception.moge_inference_mono:main',
+            'moge_infer_depth = depth_perception.moge_inference_mono:main',
             'madpose = depth_perception.madpose_metric_solver:main',
             # 'pclsub = depth_perception.pcl_sub:main'
         ],

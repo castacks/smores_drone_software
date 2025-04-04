@@ -37,12 +37,8 @@ class MogeInference(Node):
             self.device = torch.device("cuda")
         else:
             self.device = torch.device("cpu")
-<<<<<<< HEAD
         self.model = MoGeModel.from_pretrained(f"{ws_dir}/include/MoGe/moge/model/weights/model.pt").to(self.device)
 
-=======
-        self.model = MoGeModel.from_pretrained("/external/smores_drone_software/include/MoGe/moge/model/weights/model.pt").to(self.device)
->>>>>>> orin
 
         # TODO: Update to sync with the cameras directly
         self.subscription = self.create_subscription(

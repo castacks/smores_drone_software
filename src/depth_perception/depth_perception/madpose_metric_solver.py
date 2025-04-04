@@ -81,7 +81,6 @@ class MADPoseSolver(Node):
         self.get_logger().info(f'{self.i}: Received synchronized messages left ={msg_left.header.stamp}, right={msg_right.header.stamp}')
         self.i += 1
 
-<<<<<<< HEAD
     def load_intrinsics_both(self):
         self.K0 = self._load_intrinsics("left")
         self.K1 = self._load_intrinsics("right")
@@ -89,11 +88,6 @@ class MADPoseSolver(Node):
     def _load_intrinsics(self, cam):
         intrinsics_file = self.get_parameter(f'{cam}_cam_intrinsics_file').value
         with open(intrinsics_file, 'r') as file:
-=======
-    def load_intrinsics(self, cam):
-        # TODO dyanmically populate file
-        with open(f'/external/smores_drone_software/calibrations/ORDv1_Smores_Feb2025/{cam}_thermal.yaml', 'r') as file:
->>>>>>> orin
             cal = yaml.safe_load(file)
 
         intrinsics = cal["cam0"]["intrinsics"]
