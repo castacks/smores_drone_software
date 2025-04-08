@@ -12,6 +12,8 @@ find_package(ament_cmake REQUIRED)
 # find_package(<dependency> REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(message_filters REQUIRED)
+find_package(cv_bridge REQUIRED)
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 find_package(CUDA REQUIRED)
@@ -28,7 +30,7 @@ link_directories(${TENSORRT_LIBRARY_DIR})
 add_executable(depth-v2-node src/depth_v2_node.cpp)
 target_link_libraries(depth-v2-node nvinfer nvinfer_plugin ${OpenCV_LIBS} ${CUDA_LIBRARIES})
 
-ament_target_dependencies(depth-v2-node rclcpp std_msgs)
+ament_target_dependencies(depth-v2-node rclcpp std_msgs message_filters cv_bridge)
 install(TARGETS
         depth-v2-node
         DESTINATION lib/${PROJECT_NAME})
