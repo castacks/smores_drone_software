@@ -18,6 +18,7 @@ find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 find_package(CUDA REQUIRED)
 include_directories(${CUDA_INCLUDE_DIRS})
+find_package(yaml-cpp REQUIRED)
 
 #find_package(TensorRT REQUIRED)
 
@@ -30,7 +31,7 @@ link_directories(${TENSORRT_LIBRARY_DIR})
 add_executable(depth-v2-node src/depth_v2_node.cpp)
 target_link_libraries(depth-v2-node nvinfer nvinfer_plugin ${OpenCV_LIBS} ${CUDA_LIBRARIES})
 
-ament_target_dependencies(depth-v2-node rclcpp std_msgs message_filters cv_bridge)
+ament_target_dependencies(depth-v2-node rclcpp std_msgs message_filters cv_bridge yaml-cpp)
 install(TARGETS
         depth-v2-node
         DESTINATION lib/${PROJECT_NAME})
