@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y software-properties-common curl locales
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null && \
     apt-get update && \
     apt-get install -y ros-humble-desktop-full ros-humble-cv-bridge ros-humble-foxglove-bridge x11-apps libeigen3-dev libceres-dev git \
-    build-essential ros-dev-tools unzip ninja-build libgtk2.0-dev pkg-config
+    build-essential ros-dev-tools unzip ninja-build libgtk2.0-dev pkg-config libgtk2.0-dev libgtk-3-dev libcanberra-gtk-module libcanberra-gtk3-module libxkbcommon-x11-0 vulkan-tools
 
 RUN mkdir /opencv-build-temp && cd /opencv-build-temp && \
     wget -O /opencv-build-temp/opencv.zip https://github.com/opencv/opencv/archive/4.x.zip && \
@@ -75,6 +75,11 @@ RUN apt-get remove -y python3-blinker
     # cd /workspace && \
     # wget -O model.pt https://huggingface.co/Ruicheng/moge-vitl/resolve/main/model.pt?download=true
 # ############################ UNCOMMENT ABOVE FOR MOGE + MADPOSE #######################################
+
+
+########################### UNCOMMENT FOR MAPPING #############################
+RUN apt-get -y install libosmesa6-dev
+###############################################################################
 
 # RUN git clone https://github.com/jenicek/asmk /asmk
 # RUN pip install cython faiss-gpu

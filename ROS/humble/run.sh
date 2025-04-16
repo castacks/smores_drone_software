@@ -9,6 +9,8 @@ podman run -it \
 	-v /mnt/storage:/storage/:z \
 	--device=/dev/dri:/dev/dri \
 	-e DISPLAY=$DISPLAY \
+	-e QT_X11_NO_MITSHM=1 \
+  	-e XDG_RUNTIME_DIR=/tmp \
 	--gpus all \
 	--net host \
 	--name smores_dev_all \
