@@ -60,6 +60,8 @@ class MogeInference(Node):
         
         self.get_logger().info(f"MogeInferenceMono.py: Initialized MogeInference node successfully")
         
+        self.count = 0
+        
 
     def infer_depth(self, left_image: Image, right_image:Image):
         """
@@ -78,12 +80,20 @@ class MogeInference(Node):
 
         cv2_left_rgb  = cv2.cvtColor(cv2_left, cv2.COLOR_BGR2RGB)
         cv2_right_rgb = cv2.cvtColor(cv2_right, cv2.COLOR_BGR2RGB)
-
-        height, width = cv2_left_rgb.shape[:2]
-        new_width = int(width/2)
-        height, width = min(new_width, int(new_width * height / width)), min(new_width, int(new_width * width / height))
-        cv2_left_rgb = cv2.resize(cv2_left_rgb, (width, height), cv2.INTER_AREA)
-        cv2_right_rgb = cv2.resize(cv2_right_rgb, (width, height), cv2.INTER_AREA)
+        
+        store_image_path = f"/workspace/smores_drone_software/data/airlab1_images"
+        cv2.imwrite(f"{store_image_path}/left_{self.count}.png", cv2_left_rgb)
+        cv2.imwrite(f"{store_image_path}/right_{self.count}.png", cv2_right_rgb)
+        
+        print(f"{self.count} images saved")
+        self.count += 1
+        
+        
+        # height, width = cv2_left_rgb.shape[:2]
+        # new_width = int(width/2)
+        # height, width = min(new_width, int(new_width * height / width)), min(new_width, int(new_width * width / height))
+        # cv2_left_rgb = cv2.resize(cv2_left_rgb, (width, height), cv2.INTER_AREA)
+        # cv2_right_rgb = cv2.resize(cv2_right_rgb, (width, height), cv2.INTER_AREA)
         
         cv2_left_tensor = torch.tensor(cv2_left_rgb / 255, dtype=torch.float32, device=self.device).permute(2, 0, 1)   #(channels, length, width)
         cv2_right_tensor = torch.tensor(cv2_right_rgb / 255, dtype=torch.float32, device=self.device).permute(2, 0, 1) #(channels, length, width)
@@ -92,7 +102,7 @@ class MogeInference(Node):
         
         self.get_logger().debug(f"MogeInferenceMono.py: About to run model")
         
-        output = self.model.infer(input_tensor, fov_x=95, resolution_level=6)
+        output = self.model.infer(input_tensor, fov_x=95)
         depth = output["depth"].cpu().numpy()
         #points = output["points"].cpu().numpy()
         #intrinsics = output["intrinsics"].cpu().numpy()

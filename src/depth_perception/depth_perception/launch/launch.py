@@ -52,7 +52,7 @@ def generate_launch_description():
         [
             preproc_launch,
             mogeinf,
-            #madpose_solver,
+            madpose_solver,
             #pcl_sub_test,
             #foxglove_launch,
         ]

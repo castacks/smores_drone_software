@@ -78,8 +78,8 @@ class MADPoseSolver(Node):
 
         self.i = 0
 
-    def test_synced_pair(self, msg_left, msg_right):
-        self.get_logger().info(f'{self.i}: Received synchronized messages left ={msg_left.header.stamp}, right={msg_right.header.stamp}')
+    def test_synced_pair(self, left_image, right_image, left_depth, right_depth):
+        self.get_logger().info(f'{self.i}: Received synchronized left img of shape ={left_image.shape}, depth of ={left_depth.shape}')
         self.i += 1
 
     def load_intrinsics_both(self):
@@ -128,9 +128,12 @@ class MADPoseSolver(Node):
         return mkpts0, mkpts1
 
     def solve_metric(self, msg):
+
         # Read the image pair
         image0 = self.bridge.imgmsg_to_cv2(msg.left_image, msg.left_image.encoding)
         image1 = self.bridge.imgmsg_to_cv2(msg.right_image, msg.right_image.encoding)
+
+        self.test_synced_pair(image0, image1, np.array(msg.left_depth), np.array(msg.right_depth))
 
         # Run keypoint detector (SIFT)
         mkpts0, mkpts1 = self.get_matched_keypoints(image0, image1)
@@ -191,9 +194,9 @@ class MADPoseSolver(Node):
         #np.savez(f"data/test/npy/{self.i}_npy.npy", point_cloud0, colors0)
 
         # Save the point clouds in PLY format
-        self.save_point_cloud(point_cloud0, colors0, f"data/test_pcl/{self.i}_point_cloud_0.ply")
-        self.save_point_cloud(point_cloud1, colors1, f"data/test_pcl/{self.i}_point_cloud_1.ply")
-        self.i += 1
+        # self.save_point_cloud(point_cloud0, colors0, f"data/test_pcl/{self.i}_point_cloud_0.ply")
+        # self.save_point_cloud(point_cloud1, colors1, f"data/test_pcl/{self.i}_point_cloud_1.ply")
+        # self.i += 1
 
         pc20 = self.create_pc2_msg("thermal_left/optical_frame", point_cloud0, colors0)
         pc21 = self.create_pc2_msg("thermal_right/optical_frame", point_cloud1, colors1)
