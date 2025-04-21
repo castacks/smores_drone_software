@@ -233,7 +233,7 @@ public:
 
         sensor_msgs::msg::PointCloud2 cloud_msg;
         cloud_msg.header.stamp = left->header.stamp;
-        cloud_msg.header.frame_id = "thermal_left";
+        cloud_msg.header.frame_id = "thermal_left_frame";
         cloud_msg.height = disparity.rows;
         cloud_msg.width = disparity.cols;
         cloud_msg.is_dense = false;
@@ -266,6 +266,7 @@ public:
         sensor_msgs::msg::Image::SharedPtr disparityMessage = disparity_message.toImageMsg();
         disparityMessage->header.stamp = left->header.stamp;
         // disparity = K1[0, 0] * 0.24262 / disp
+        RCLCPP_INFO_STREAM(this->get_logger(), "Publishing");
         disparity_publisher->publish(*disparityMessage);
         points_publisher->publish(cloud_msg);
         // cv::imshow("Disparity", normalizedDisparity);
