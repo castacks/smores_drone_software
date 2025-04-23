@@ -69,6 +69,9 @@ class FoundationStereoDepthNode : public rclcpp::Node {
         sensor_msgs::msg::Image, sensor_msgs::msg::Image> > > sync;
 
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr disparity_publisher;
+    rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr left_cleaned_publisher;
+    rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr right_cleaned_publisher;
+
     rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr points_publisher;
 
 
@@ -179,6 +182,8 @@ public:
         sync->setMaxIntervalDuration(rclcpp::Duration::from_seconds(0.05));
         sync->registerCallback(std::bind(&FoundationStereoDepthNode::stereoDepthCallback, this, _1, _2));
         disparity_publisher = this->create_publisher<sensor_msgs::msg::Image>("disparity", 10);
+        left_cleaned_publisher = this->create_publisher<sensor_msgs::msg::Image>("/thermal_left/depth_preproc", 10);
+        right_cleaned_publisher = this->create_publisher<sensor_msgs::msg::Image>("/thermal_right/depth_preproc", 10);
         points_publisher = this->create_publisher<sensor_msgs::msg::PointCloud2>("foundation_points", 10);
     }
 
@@ -269,6 +274,17 @@ public:
         RCLCPP_INFO_STREAM(this->get_logger(), "Publishing");
         disparity_publisher->publish(*disparityMessage);
         points_publisher->publish(cloud_msg);
+
+        cv_bridge::CvImage leftCleanedMessageBridge(left->header, "mono8", leftVisualImage);
+        cv_bridge::CvImage rightCleanedMessageBridge(left->header, "mono8", rightVisualImage);
+
+        sensor_msgs::msg::Image::SharedPtr leftCleanedMessage = leftCleanedMessageBridge.toImageMsg();
+        sensor_msgs::msg::Image::SharedPtr rightCleanedMessage = rightCleanedMessageBridge.toImageMsg();
+
+        leftCleanedMessage->header.stamp = left->header.stamp;
+        rightCleanedMessage->header.stamp = left->header.stamp;
+        left_cleaned_publisher->publish(*leftCleanedMessage);
+        right_cleaned_publisher->publish(*rightCleanedMessage);
         // cv::imshow("Disparity", normalizedDisparity);
         // cv::waitKey(0);
     }
