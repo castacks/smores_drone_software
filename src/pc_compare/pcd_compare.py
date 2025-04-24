@@ -3,6 +3,7 @@ import open3d as o3d
 # from numba import njit
 # import torch
 import argparse
+import pytest
 
 def get_pred2gt_schamfer_dist(gt_pcd, pred_pcd, voxel_downsample=0.05):
     """
@@ -16,6 +17,11 @@ def get_pred2gt_schamfer_dist(gt_pcd, pred_pcd, voxel_downsample=0.05):
 
     Returns:
         float: The distance between the two point clouds.
+
+    Example usage:
+    >>>  get_pred2gt_schamfer_dist(generate_sphere_given_radius(100, 1), generate_sphere_given_radius(90, 0.9))
+    1.0
+
     """
     
     downsampled_gt_pcd = gt_pcd.voxel_down_sample(voxel_size=voxel_downsample)
@@ -25,10 +31,10 @@ def get_pred2gt_schamfer_dist(gt_pcd, pred_pcd, voxel_downsample=0.05):
     num_gt_points = len(downsampled_gt_pcd.points)
     
     gt_points = np.asarray(downsampled_gt_pcd.points).astype(np.float32)      # (G, 3)
-    gt_points = np.expand_dims(np.asarray(downsampled_gt_pcd.points), axis=1) # (G, 1, 3)
+    gt_points = np.expand_dims(np.asarray(gt_points), axis=1) # (G, 1, 3)
     
     pred_points = np.asarray(downsampled_pred_pcd.points).astype(np.float32)                          # (P, 3)
-    pred_points = np.expand_dims(np.asarray(downsampled_pred_pcd.points), axis=1).transpose(1, 0, 2)  # (1, P, 3)
+    pred_points = np.expand_dims(np.asarray(pred_points), axis=1).transpose(1, 0, 2)  # (1, P, 3)
 
     # Along a column, we have the distances from every point in prediction to 1 in gt
     # Along a row have the distances from every point in gt to 1 in prediction
@@ -46,27 +52,30 @@ def get_pred2gt_schamfer_dist(gt_pcd, pred_pcd, voxel_downsample=0.05):
 
     return one_way_schamfer_dist
 
-# def chamfer_loss(point_cloud_src: torch.Tensor, point_cloud_tgt: torch.Tensor):
-# 	# point_cloud_src, point_cloud_src: b x n_points x 3  
-# 	# loss_chamfer = 
-# 	# implement chamfer loss from scratch
-# 	#NOTE: For each point in set 1, we want to find the closest point in set 2, take L2 Loss, and vice versa. Should we use the whole pc1 and pc2 as set1 and set2
-# 	B, N, _ = point_cloud_src.shape
-# 	_, M, _ = point_cloud_tgt.shape
-# 	pc_src_expanded = point_cloud_src.unsqueeze(2).expand(-1, -1, M, -1) # B x N x M x 3 (where M x 3 is x,y,z repeated M times)
-# 	pc_tgt_expanded = point_cloud_tgt.unsqueeze(1).expand(-1, N, -1, -1) # B x N x M x 3 (where N x M x 3 is M x 3 repeated N times)
+def generate_sphere_given_radius(num_coords=50, radius=1.0):
+    coord = np.linspace(-radius, radius, num_coords)
+    x, y = np.meshgrid(coord, coord)
+    x_flat = x.flatten()
+    y_flat = y.flatten()
+    x_sq = np.square(x_flat)
+    y_sq = np.square(y_flat)
 
-# 	distance = torch.sqrt(torch.sum((pc_tgt_expanded - pc_src_expanded)**2, dim=-1)) # Sum squared differences alng last dimension (x,y,z) -> B x N x M
-# 	# Loss part 1 -> Take min over M to get the point from target with minimmum distance to the repeated point in src
-# 	# Then sum over all the points in src, hence along dimension N
-# 	# loss_pt1 = torch.sum(torch.min(distance, dim=2).values, dim=1) # After min -> (B x N), after sum across N, (B,)
-# 	loss_pt2 = torch.sum(torch.min(distance, dim=1).values, dim=1) # After min -> (B x M), after sum across M, (B,)
-	
-# 	loss_chamfer = loss_pt1 + loss_pt2
-# 	loss_chamfer = loss_chamfer.mean() # Across batch size B
-# 	return loss_chamfer
-    
-    
+    # Only keep the points where x^2 + y^2 <= r^2
+    inside_circle = x_sq + y_sq <= radius**2
+    x_flat = x_flat[inside_circle]
+    y_flat = y_flat[inside_circle]
+    z_sq = radius**2 - x_flat**2 - y_flat**2
+    z_flat = np.sqrt(z_sq)
+
+    # Include both hemispheres
+    coords = np.vstack((np.concatenate([x_flat, x_flat]),
+                        np.concatenate([y_flat, y_flat]),
+                        np.concatenate([z_flat, -z_flat])))
+
+    pcd = o3d.geometry.PointCloud()
+    pcd.points = o3d.utility.Vector3dVector(coords.T)
+    return pcd
+
 def visualize_pointcloud_offscreen(pcd_path, output_image="output.png"):
     """
     Visualizes a point cloud in headless mode and saves the result as an image.
@@ -102,10 +111,13 @@ if __name__ == '__main__':
     # o3d.visualization.draw_geometries([gt_pcd, pred_pcd], window_name="Ground Truth Point Cloud")
     # o3d.visualization.draw_geometries([], window_name="Ground Truth Point Cloud")
     
-    # gt_tensor = torch.tensor(gt_pcd.points).unsqueeze(0)
-    # pred_tensor = torch.tensor(pred_pcd.points).unsqueeze(0)
-    
     # chamfer_loss(gt_tensor, pred_tensor)
-    one_way_schamfer_dist = get_pred2gt_schamfer_dist(gt_pcd, pred_pcd, voxel_downsample=0.05)
+    # one_way_schamfer_dist = get_pred2gt_schamfer_dist(gt_pcd, pred_pcd, voxel_downsample=0.05)
+    pc1 = generate_sphere_given_radius(100, 1)
+    pc2 = generate_sphere_given_radius(90, 0.9)
+
+    o3d.visualization.draw_geometries([pc1, pc2], window_name="Ground Truth Point Cloud")
+
+    one_way_schamfer_dist = get_pred2gt_schamfer_dist(pc1, pc2)
     
     print(f"One way schamfer distance from pred to gt: {one_way_schamfer_dist}")
