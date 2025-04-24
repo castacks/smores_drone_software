@@ -48,6 +48,8 @@ RUN mkdir -p /root/.ssh && \
         chmod 600 /root/.ssh/id_rsa.pub  && \
         cd /workspace && \
         mkdir smores_drone_software && \
+	mkdir -p /workspace/pc_compare && \
+	mkdir -p /workspace/macvo && \
         echo "StrictHostKeyChecking no" >> /etc/ssh/ssh_config
 
 
@@ -71,7 +73,9 @@ RUN mkdir -p /root/.ssh && \
 ############################ UNCOMMENT ABOVE FOR MAST3R #######################################
 
 # ############################ UNCOMMENT BELOW FOR MOGE + MADPOSE #######################################
-RUN apt-get remove -y python3-blinker 
+RUN apt-get remove -y python3-blinker && \
+    pip3 install open3d && \
+    apt-get update && apt-get install -y vim 
     # cd /workspace && \
     # wget -O model.pt https://huggingface.co/Ruicheng/moge-vitl/resolve/main/model.pt?download=true
 # ############################ UNCOMMENT ABOVE FOR MOGE + MADPOSE #######################################
@@ -85,13 +89,13 @@ RUN apt-get remove -y python3-blinker
 # RUN pip install .
 
 # COPY no-push/.Xauthority /root/.Xauthority
-COPY ROS/humble/ros_entrypoint.sh /
-COPY pip-requirements.txt /workspace
-RUN pip3 install -r pip-requirements.txt && \
-    pip3 install git+https://github.com/EasternJournalist/utils3d.git#egg=utils3d && \
-    chmod +x /ros_entrypoint.sh && \
-    echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc && \
-    echo "export ROS_WS_DIR=/workspace/smores_drone_software" >> ~/.bashrc
+# COPY ROS/humble/ros_entrypoint.sh /
+# COPY pip-requirements.txt /workspace
+# RUN pip3 install -r pip-requirements.txt && \
+    # pip3 install git+https://github.com/EasternJournalist/utils3d.git#egg=utils3d && \
+    # chmod +x /ros_entrypoint.sh && \
+    # echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc && \
+    # echo "export ROS_WS_DIR=/workspace/smores_drone_software" >> ~/.bashrc
     
-ENTRYPOINT ["/ros_entrypoint.sh"]
+# ENTRYPOINT ["/ros_entrypoint.sh"]
 CMD ["bash"]

@@ -47,11 +47,11 @@ def visualize_random_point_clouds_with_gradients(folder_path: str, num_pcs: int 
     print("Done")
 
 if __name__ == '__main__':
-    # point_clouds_list = load_point_clouds_from_folder('/external/mapping_pcl/trial_airlab1/')
+    point_clouds_list = load_point_clouds_from_folder('/external/mapping_pcl/foundation_pcl/clouds/')
 
     # source = o3d.io.read_point_cloud("/external/mapping_pcl/madpose_airlab1/7_point_cloud_0.ply")
     # target = o3d.io.read_point_cloud("/external/mapping_pcl/madpose_airlab1/89_point_cloud_0.ply")
     # visualize_point_cloud(target)
     # pair_registration(source, target)
 
-    visualize_random_point_clouds_with_gradients(folder_path='/external/mapping_pcl/madpose_airlab1/')
+    # visualize_random_point_clouds_with_gradients(folder_path='/external/mapping_pcl/foundation_pcl/clouds/')
