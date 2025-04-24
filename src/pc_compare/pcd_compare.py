@@ -107,17 +107,12 @@ if __name__ == '__main__':
 
     gt_pcd = o3d.io.read_point_cloud(args.gt_pcd)
     pred_pcd = o3d.io.read_point_cloud(args.pred_pcd)
-    
-    # o3d.visualization.draw_geometries([gt_pcd, pred_pcd], window_name="Ground Truth Point Cloud")
-    # o3d.visualization.draw_geometries([], window_name="Ground Truth Point Cloud")
-    
-    # chamfer_loss(gt_tensor, pred_tensor)
-    # one_way_schamfer_dist = get_pred2gt_schamfer_dist(gt_pcd, pred_pcd, voxel_downsample=0.05)
-    pc1 = generate_sphere_given_radius(100, 1)
-    pc2 = generate_sphere_given_radius(90, 0.9)
 
-    o3d.visualization.draw_geometries([pc1, pc2], window_name="Ground Truth Point Cloud")
+    #### TEST ####
+    # pc1 = generate_sphere_given_radius(100, 1)
+    # pc2 = generate_sphere_given_radius(90, 0.9)
+    # o3d.visualization.draw_geometries([pc1, pc2], window_name="Ground Truth Point Cloud")
 
-    one_way_schamfer_dist = get_pred2gt_schamfer_dist(pc1, pc2)
+    one_way_schamfer_dist = get_pred2gt_schamfer_dist(gt_pcd, pred_pcd)
     
     print(f"One way schamfer distance from pred to gt: {one_way_schamfer_dist}")
