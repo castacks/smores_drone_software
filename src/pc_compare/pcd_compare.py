@@ -60,14 +60,14 @@ def generate_sphere_given_radius(num_coords=50, radius=1.0):
     x_sq = np.square(x_flat)
     y_sq = np.square(y_flat)
 
-    # Only keep the points where x^2 + y^2 <= r^2
+    # Only keep the points where x^2 + y^2 <= r^2 bc otherwise, bad things happen
     inside_circle = x_sq + y_sq <= radius**2
     x_flat = x_flat[inside_circle]
     y_flat = y_flat[inside_circle]
     z_sq = radius**2 - x_flat**2 - y_flat**2
     z_flat = np.sqrt(z_sq)
 
-    # Include both hemispheres
+    # THIS ONLY SOLVES FOR ONE HALF
     coords = np.vstack((np.concatenate([x_flat, x_flat]),
                         np.concatenate([y_flat, y_flat]),
                         np.concatenate([z_flat, -z_flat])))
@@ -75,27 +75,6 @@ def generate_sphere_given_radius(num_coords=50, radius=1.0):
     pcd = o3d.geometry.PointCloud()
     pcd.points = o3d.utility.Vector3dVector(coords.T)
     return pcd
-
-def visualize_pointcloud_offscreen(pcd_path, output_image="output.png"):
-    """
-    Visualizes a point cloud in headless mode and saves the result as an image.
-
-    Args:
-        pcd_path (str): Path to the point cloud file.
-        output_image (str): Path to save the rendered image.
-    """
-    # Load the point cloud
-    pcd = o3d.io.read_point_cloud(pcd_path)
-
-    # Create a visualizer for offscreen rendering
-    vis = o3d.visualization.O3DVisualizer("Offscreen Point Cloud Visualization", 800, 600)
-    vis.show_settings = True
-    vis.add_geometry("PointCloud", pcd)
-
-    # Render and save the image
-    vis.capture_screen_image(output_image)
-    print(f"Point cloud visualization saved to {output_image}")
-    
 
 
 if __name__ == '__main__':
