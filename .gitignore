@@ -1,4 +1,6 @@
 .vscode/
+.fleet
+.cache
 **/__pycache__
 .idea
 build
