@@ -17,7 +17,7 @@ find_package(sensor_msgs REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(yaml-cpp REQUIRED)
 
-add_executable(thermal-preprocessing src/thermal-preprocessing-node.cpp)
+add_executable(thermal-preprocessing src/thermal-preprocessing-node.cpp src/MedianFilter.cpp)
 ament_target_dependencies(thermal-preprocessing rclcpp std_msgs cv_bridge sensor_msgs OpenCV yaml-cpp)
 
 target_include_directories(thermal-preprocessing PUBLIC

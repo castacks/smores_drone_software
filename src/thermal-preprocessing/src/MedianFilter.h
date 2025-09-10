@@ -1,0 +1,13 @@
+//
+// Created by ranai on 9/9/25.
+//
+
+#ifndef SMORES_DRONE_SOFTWARE_MEDIANFILTER_H
+#define SMORES_DRONE_SOFTWARE_MEDIANFILTER_H
+
+
+class MedianFilter {
+};
+
+
+#endif //SMORES_DRONE_SOFTWARE_MEDIANFILTER_H
