@@ -3,15 +3,25 @@ gradio
 numpy
 empy==3.3.4
 lark
-
-# MoGE dependencies
-click           # ==8.1.7
-opencv-python   # ==4.10.0.84
-scipy           # ==1.14.1
-matplotlib      # ==3.9.2
-trimesh         # ==4.5.1
-pillow          # ==10.4.0
-huggingface_hub # ==0.25.2
-
-# madpose dependencies
 open3d
+pypose >= 0.6.8
+opencv-python-headless
+evo
+matplotlib==3.8.4
+tabulate
+tqdm
+rich
+cupy-cuda12x
+einops
+timm==0.9.12
+rerun-sdk==0.21.0
+yacs
+numpy<2.0.0
+pyyaml
+wandb
+pillow
+scipy
+flow_vis
+h5py
+xformers==0.0.27.post2
+onnx

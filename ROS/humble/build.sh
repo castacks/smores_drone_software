@@ -1,6 +1,9 @@
 #! /bin/sh
 
 # Build docker image
-podman build -f Dockerfile \
-             -t smores_dev /home/smores/smores_drone_software \
-             --build-arg ssh_prv_key="$(cat ~/.ssh/ranais_ssh)"
+# Syntax docker -f <name to Dockerfile> -t <What name to assign> <root dir for docker build (build context)>
+docker build -f ROS/humble/Dockerfile \
+             -t smores_dev_container \
+             --build-arg HOST_UID=$(id -u) \
+             --build-arg HOST_GID=$(id -g) \
+             $(git rev-parse --show-toplevel)

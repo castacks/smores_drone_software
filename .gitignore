@@ -10,3 +10,4 @@ install
 log
 no-push
 data
+.python_version
