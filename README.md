@@ -25,8 +25,15 @@ EOF
 ### Building ROVTIO
 Run:
 ```bash
-colcon build --symlink-install --packages-select rovtio --event-handlers console_direct+ --cmake-force-configure --cmake-args -DCMAKE_CXX_FLAGS="-Wno-error -std=gnu++17" -DCMAKE_C_FLAGS="-Wno-error -std=gnu17" -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_PREFIX_PATH="$(pwd)/include/install/kindr/share/:$(pwd)/include/install/lightweight_filtering/share/" -DCMAKE_MODULE_PATH="$(pwd)/include/install/lightweight_filtering/share/" -Wno-dev -DROVIO_NCAM=1 -DROVIO_NMAXFEATURE=25
+colcon build --symlink-install --packages-select rovtio --event-handlers console_direct+ --cmake-force-configure --cmake-args -DCMAKE_CXX_FLAGS="-Wno-error -std=gnu++17" -DCMAKE_C_FLAGS="-Wno-error -std=gnu17" -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_PREFIX_PATH="$(pwd)/include/install/kindr/share/:$(pwd)/include/install/lightweight_filtering/share/" -DCMAKE_MODULE_PATH="$(pwd)/include/install/lightweight_filtering/share/" -Wno-dev -DROVIO_NCAM=2 -DROVIO_NMAXFEATURE=8
 ```
+
+### Launching ROVTIO
+Latest configs are under `src/rovtio/cfg/current/`
+
+Launch using: `ros2 launch src/rovtio/cfg/current/rovtio.phxpro.launch.py`
+
+Optionally append `> /dev/null` to stop logging. 
 
 ### Important
 Touch grass.
