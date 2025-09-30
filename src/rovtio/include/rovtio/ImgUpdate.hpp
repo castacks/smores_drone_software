@@ -307,7 +307,7 @@ namespace rovtio {
       useDirectMethod_ = true;
       doFrameVisualisation_ = true;
       visualizePatches_ = false;
-      verbose_ = true;
+      verbose_ = false;
       trackingUpperBound_ = 0.9;
       trackingLowerBound_ = 0.1;
       minTrackedAndFreeFeatures_ = 0.5;
@@ -691,9 +691,7 @@ namespace rovtio {
         else
           meas.aux().pyr_[meas.aux().activeModality_].imgs_[0].convertTo(tmpImg, CV_8UC1);
         //Convert Image to color for drawing purposes
-        cv::Mat color_image;
-        cv::cvtColor(tmpImg, color_image, cv::COLOR_GRAY2RGB);
-        filterState.img_[meas.aux().activeModality_] = color_image;
+        cvtColor(tmpImg, filterState.img_[meas.aux().activeModality_], cv::COLOR_GRAY2RGB);
       }
       filterState.imgTime_ = filterState.t_;
       filterState.imageCounter_++;

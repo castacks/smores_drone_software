@@ -881,7 +881,6 @@ namespace rovtio {
       camOffset = cam_offsets_[camID];
       if (init_state_.isInitialized() && !cv_img.empty()) {
         double msgTime = rclcpp::Time(img->header.stamp).seconds() + camOffset;
-        RCLCPP_INFO(this->get_logger(), "got to emplace");
         lastTimeReceived.at(camID).emplace(cv_img, msgTime);
         timestampLastReceivedImage[camID] = this->now();
       }
