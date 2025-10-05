@@ -10,7 +10,7 @@ Common
 
 Camera0
 {
-  CalibrationFile  /external/smores_drone_software/src/cfg/phxpro/left-thermal-rovio.yaml;
+  CalibrationFile  /external/smores_drone_software/src/rovtio/cfg/phxpro/left-thermal-rovio.yaml;
   qCM_x  1.0;                              X-entry of IMU to Camera quaterion (Hamilton)
   qCM_y  0.0;                                Y-entry of IMU to Camera quaterion (Hamilton)
   qCM_z  0.0;                              Z-entry of IMU to Camera quaterion (Hamilton)

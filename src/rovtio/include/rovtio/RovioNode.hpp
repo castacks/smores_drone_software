@@ -444,7 +444,7 @@ namespace rovtio {
       map_frame_ = "/map";
       world_frame_ = "odom";
       camera_frame_ = "/camera";
-      imu_frame_ = "base_link";
+      imu_frame_ = "imu";
 
       this->declare_parameter("map_frame", map_frame_);
       this->declare_parameter("world_frame", world_frame_);
