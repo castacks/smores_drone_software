@@ -70,8 +70,10 @@ class FoundationStereoDepthNode : public rclcpp::Node {
 
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr disparity_publisher;
     rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr points_publisher;
-
-
+    
+    bool started = false;
+    rclcpp::Time last_processed_time;
+    rclcpp::Duration min_dt = rclcpp::Duration::from_seconds(5);
     nvinfer1::ICudaEngine *engine;
     nvinfer1::IExecutionContext *context;
     void *left_buffer, *right_buffer, *disparity_buffer;
@@ -107,6 +109,8 @@ class FoundationStereoDepthNode : public rclcpp::Node {
     //     cv::Mat depth;
     //     cv::divide(cv::Mat(), disparity, depth, cameraIntrinsics.at<float>(0, 0) * 0.24);
     // }
+
+
 
 public:
     FoundationStereoDepthNode()
@@ -185,6 +189,24 @@ public:
     void stereoDepthCallback(const sensor_msgs::msg::Image::ConstSharedPtr &left,
                              const sensor_msgs::msg::Image::ConstSharedPtr &right) {
         RCLCPP_INFO(this->get_logger(), "Received Image Pair");
+        rclcpp::Time left_time(left->header.stamp);
+        rclcpp::Time right_time(left->header.stamp);
+        
+        rclcpp::Time minTime = left_time < right_time ? left_time : right_time;
+        
+
+        if(started && minTime - last_processed_time < min_dt) {
+            if(started){
+                rclcpp::Duration dt = minTime - last_processed_time;
+                RCLCPP_INFO_STREAM(this->get_logger(), "SKIPPING FRAME WITH DT "<<dt.seconds()<<endl);
+            }else{
+                RCLCPP_INFO_STREAM(this->get_logger(), "SKIPPING FRAME NOT STARTED"<<endl);
+            }
+            return;
+        }
+
+        started = true;
+        last_processed_time = minTime;
         const cv_bridge::CvImagePtr cv_left = cv_bridge::toCvCopy(left, left->encoding);
         const cv_bridge::CvImagePtr cv_right = cv_bridge::toCvCopy(right, right->encoding);
         // RCLCPP_INFO_STREAM(this->get_logger(), left->encoding);
