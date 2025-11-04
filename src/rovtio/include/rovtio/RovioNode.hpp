@@ -1198,7 +1198,7 @@ namespace rovtio {
           imuOutputCT_.transformCovMat(state, cov, imuOutputCov_);
 
           // odometryMsg_.header.seq = msgSeq_;
-          odometryMsg_.header.stamp = rclcpp::Time(mpFilter_->safe_.t_);
+          odometryMsg_.header.stamp = this->get_clock()->now();
           odometryMsg_.pose.pose.position.x = imuOutput_.WrWB()(0);
           odometryMsg_.pose.pose.position.y = imuOutput_.WrWB()(1);
           odometryMsg_.pose.pose.position.z = imuOutput_.WrWB()(2);
