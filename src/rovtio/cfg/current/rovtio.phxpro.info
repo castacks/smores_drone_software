@@ -89,12 +89,12 @@ ImgUpdate
     MahalanobisTh 12.0;											Mahalanobis treshold for the update, 5.8858356
     UpdateNoise0;
     {
-        pix 5;      											Covariance used for the reprojection error, 1/focal_length is roughly 1 pixel std [rad] (~1/f ~ 1/400^2 = 1/160000)
+        pix 0.5;      											Covariance used for the reprojection error, 1/focal_length is roughly 1 pixel std [rad] (~1/f ~ 1/400^2 = 1/160000)
         int 1000;     										    Covariance used for the photometric error [intensity^2]
     }
     UpdateNoise1;
     {
-        pix 5;
+        pix 0.5;
         int 1000;
     }
     initCovFeature_0 0.1;										Covariance for the initial distance (Relative to initialization depth [m^2/m^2])
