@@ -671,11 +671,11 @@ namespace rovtio {
     void commonPreProcess(mtFilterState &filterState, const mtMeas &meas) {
       // ========= PRINT IMU POSE ==========
       const auto& state = filterState.state_;
-      std::cout << "============ IMU Preintegration Result ============" << std::endl;
-      std::cout << "Time: " << filterState.t_ << std::endl;
-      std::cout << "Orientation qWM (w,x,y,z): " << state.qWM().w() << ", " << state.qWM().x() << ", " << state.qWM().y() << ", " << state.qWM().z() << std::endl;
-      std::cout << "Position WrWM (x,y,z): " << state.WrWM().x() << ", " << state.WrWM().y() << ", " << state.WrWM().z() << std::endl;
-      std::cout << "=================================================" << std::endl;
+      // std::cout << "============ IMU Preintegration Result ============" << std::endl;
+      // std::cout << "Time: " << filterState.t_ << std::endl;
+      // std::cout << "Orientation qWM (w,x,y,z): " << state.qWM().w() << ", " << state.qWM().x() << ", " << state.qWM().y() << ", " << state.qWM().z() << std::endl;
+      // std::cout << "Position WrWM (x,y,z): " << state.WrWM().x() << ", " << state.WrWM().y() << ", " << state.WrWM().z() << std::endl;
+      // std::cout << "=================================================" << std::endl;
       // ===================================
 
       assert(filterState.t_ == meas.aux().imgTime_);
@@ -784,9 +784,9 @@ namespace rovtio {
             if (activeCamCounter == 0) {
               f.mpStatistics_->increaseStatistics(filterState.t_);
               if (verbose_) {
-                std::cout << "=========== Feature " << f.idx_
-                          << " ==================================================== "
-                          << std::endl;
+                // std::cout << "=========== Feature " << f.idx_
+                //           << " ==================================================== "
+                //           << std::endl;
               }
               // Visualize patch tracking
               if (visualizePatches_) {
@@ -801,10 +801,10 @@ namespace rovtio {
               f.log_prediction_ = *f.mpCoordinates_;
             }
             if (verbose_) {
-              std::cout << "  ========== Camera  " << activeCamID << " ================= " << std::endl;
-              std::cout << "  Normal in feature frame: " << f.mpCoordinates_->get_nor().getVec().transpose()
-                        << std::endl;
-              std::cout << "  with depth: " << f.mpDistance_->getDistance() << std::endl;
+              // std::cout << "  ========== Camera  " << activeCamID << " ================= " << std::endl;
+              // std::cout << "  Normal in feature frame: " << f.mpCoordinates_->get_nor().getVec().transpose()
+              //           << std::endl;
+              // std::cout << "  with depth: " << f.mpDistance_->getDistance() << std::endl;
             }
           }
 
@@ -813,9 +813,9 @@ namespace rovtio {
           transformFeatureOutputCT_.setOutputCameraID(activeCamID);
           transformFeatureOutputCT_.transformState(state, featureOutput_);
           transformFeatureOutputCT_.transformCovMat(state, cov, featureOutputCov_);
-          if (verbose_)
-            std::cout << "    Normal in camera frame: " << featureOutput_.c().get_nor().getVec().transpose()
-                      << std::endl;
+          // if (verbose_)
+            // std::cout << "    Normal in camera frame: " << featureOutput_.c().get_nor().getVec().transpose()
+            //           << std::endl;
 
           if (camID == meas.aux().activeModality_) {   // Does not find patches in frames which are not updated
 
@@ -832,12 +832,12 @@ namespace rovtio {
               // Visualization
               if (doFrameVisualisation_) {
                 // ========= START ELLIPSE DEBUGGING =========
-                std::cout << "====== Ellipse Debug for Feature: " << f.idx_ << " ======" << std::endl;
-                std::cout << "Time: " << filterState.t_ << std::endl;
-                std::cout << "Predicted Pixel (x,y): " << featureOutput_.c().get_c().x << ", " << featureOutput_.c().get_c().y << std::endl;
-                std::cout << "Input 3D Cov (FeatureOutputCov):\n" << featureOutputCov_ << std::endl;
-                std::cout << "Output 2D Cov (PixelOutputCov):\n" << pixelOutputCov_ << std::endl;
-                std::cout << "=========================================" << std::endl;
+                // std::cout << "====== Ellipse Debug for Feature: " << f.idx_ << " ======" << std::endl;
+                // std::cout << "Time: " << filterState.t_ << std::endl;
+                // std::cout << "Predicted Pixel (x,y): " << featureOutput_.c().get_c().x << ", " << featureOutput_.c().get_c().y << std::endl;
+                // std::cout << "Input 3D Cov (FeatureOutputCov):\n" << featureOutputCov_ << std::endl;
+                // std::cout << "Output 2D Cov (PixelOutputCov):\n" << pixelOutputCov_ << std::endl;
+                // std::cout << "=========================================" << std::endl;
                 // ========= END ELLIPSE DEBUGGING =========
                 if (activeCamID == camID) {
                   featureOutput_.c().drawEllipse(drawImg_, cv::Scalar(0, 175, 175), 2.0, true);
@@ -875,20 +875,20 @@ namespace rovtio {
                                                alignConvergencePixelRange_, alignCoverageRatio_, alignMaxUniSample_)) {
                   if (verbose_){
                     // ========= FULL FEATURE DEBUG =========
-                    std::cout << "====== Feature Debug: " << f.idx_ << " Cam: " << activeCamID << " Time: " << filterState.t_ << " ======" << std::endl;
+                    // std::cout << "====== Feature Debug: " << f.idx_ << " Cam: " << activeCamID << " Time: " << filterState.t_ << " ======" << std::endl;
                     // Prediction
                     const V3D predicted_bearing = featureOutput_.c().get_nor().getVec();
                     const double predicted_dist = featureOutput_.d().getDistance();
                     const V3D predicted_3d_pos = predicted_dist * predicted_bearing;
-                    std::cout << "PREDICTED 3D Pos (cam frame): " << predicted_3d_pos.transpose() << std::endl;
-                    std::cout << "PREDICTED 2D Pixel (x,y):   " << featureOutput_.c().get_c().x << ", " << featureOutput_.c().get_c().y << std::endl;
+                    // std::cout << "PREDICTED 3D Pos (cam frame): " << predicted_3d_pos.transpose() << std::endl;
+                    // std::cout << "PREDICTED 2D Pixel (x,y):   " << featureOutput_.c().get_c().x << ", " << featureOutput_.c().get_c().y << std::endl;
                     // Measurement
                     alignedCoordinates_.com_c();
                     const cv::Point2f found_pixel = alignedCoordinates_.get_c();
-                    std::cout << "FOUND 2D Pixel (x,y):       " << found_pixel.x << ", " << found_pixel.y << std::endl;
+                    // std::cout << "FOUND 2D Pixel (x,y):       " << found_pixel.x << ", " << found_pixel.y << std::endl;
                     // Ellipse Data
-                    std::cout << "Output 2D Cov (PixelOutputCov):\n" << pixelOutputCov_ << std::endl;
-                    std::cout << "==================================================" << std::endl;
+                    // std::cout << "Output 2D Cov (PixelOutputCov):\n" << pixelOutputCov_ << std::endl;
+                    // std::cout << "==================================================" << std::endl;
                     // ========= END FULL FEATURE DEBUG =========
                   }
                   if (mlpTemp1_.isMultilevelPatchInFrame(meas.aux().pyr_[activeCamID], alignedCoordinates_, startLevel_,
@@ -971,7 +971,7 @@ namespace rovtio {
       const int minFeaturesToAdd = std::max(minFeaturesPerModality_ - featuresPerCam[meas.aux().activeModality_], 0);
       const int possibleToAdd = mtState::nMax_ - filterState.fsm_.getValidCount();
 
-      std::cout << "camID:" << camID << ", numFound[0]: " << numFound[0] << ", numfound[1]:" << numFound[1] << '\n';
+      // std::cout << "camID:" << camID << ", numFound[0]: " << numFound[0] << ", numfound[1]:" << numFound[1] << '\n';
 
 
       int totalFound = 0;
@@ -999,7 +999,7 @@ namespace rovtio {
       }
 
 
-      std::cout << "Number of features for this cam: " << numFound[camID] << ", totalFound: " << totalFound << ", maxFeaturesToAdd:" << maxFeaturesToAdd << ", possibleToAdd:" << possibleToAdd << ", features[0]" << featuresPerCam[0] << ", features[1]:" << featuresPerCam[1] << ", averageFeaturesLifetime[0]: " << averageFeatureLifetime[0] << ", averageFeatureLifetime[1]: " << averageFeatureLifetime[1]  <<'\n';
+      // std::cout << "Number of features for this cam: " << numFound[camID] << ", totalFound: " << totalFound << ", maxFeaturesToAdd:" << maxFeaturesToAdd << ", possibleToAdd:" << possibleToAdd << ", features[0]" << featuresPerCam[0] << ", features[1]:" << featuresPerCam[1] << ", averageFeaturesLifetime[0]: " << averageFeatureLifetime[0] << ", averageFeatureLifetime[1]: " << averageFeatureLifetime[1]  <<'\n';
       const double singleShotScore = (double)numFound[camID] / (double)totalFound; // A score considering only how much of this spesific image that is suited for tracking.
       const double liveFeatureLiftimeScore = averageFeatureLifetime[camID] / totalAverageLifetimes; // A score considering how good a modality have traditionally been.
       const double historicalFeatureCountScore = featureCountHistoryScore[camID];
@@ -1017,12 +1017,12 @@ namespace rovtio {
           resScore = liveFeatureLiftimeScore * liveFeatureLiftimeScore * historicalFeatureCountScore * historicalFeatureCountScore * singleShotScore * mtState::nCam_ * mtState::nCam_ * mtState::nCam_ * mtState::nCam_;
         }
       }
-      std::cout << "Verbose:" << verbose_ << '\n';
-      if (verbose_) std::cout << "Singleshotscore: " << singleShotScore << ", historicalfeaturecountscore: " << historicalFeatureCountScore << ", livefeaturelifetimescore: " << liveFeatureLiftimeScore << ", resScore: " << resScore << '\n';
+      // std::cout << "Verbose:" << verbose_ << '\n';
+      // if (verbose_) std::cout << "Singleshotscore: " << singleShotScore << ", historicalfeaturecountscore: " << historicalFeatureCountScore << ", livefeaturelifetimescore: " << liveFeatureLiftimeScore << ", resScore: " << resScore << '\n';
       int res = (int) (resScore * modalitySelectionAdditionScalar_ * (double) (mtState::nMax_)) - featuresPerCam[meas.aux().activeModality_];
       res = res > maxFeaturesToAdd ? maxFeaturesToAdd : res;
       res = res < minFeaturesToAdd ? minFeaturesToAdd : res;
-      if(verbose_) std::cout << "RelativeScore:" << singleShotScore << ", resulting features: " << res << '\n';
+      // if(verbose_) std::cout << "RelativeScore:" << singleShotScore << ", resulting features: " << res << '\n';
       return res;
     }
 
@@ -1253,18 +1253,18 @@ namespace rovtio {
           if (meas.aux().camActive_[camID]) {
             continue;
           }else{
-            if (verbose_) std::cout << filterState.fsm_.features_[i].idx_ << ", ";
+            // if (verbose_) std::cout << filterState.fsm_.features_[i].idx_ << ", ";
             filterState.fsm_.isValid_[i] = false;
             numRemovedFeaturesThisFrame += 1;
             filterState.resetFeatureCovariance(i, Eigen::Matrix3d::Identity());
-            if (verbose_)std::cout << "Removed a feature due to dying camera.\n";
+            // if (verbose_)std::cout << "Removed a feature due to dying camera.\n";
           }
         }
       }
 
       // Remove bad feature.
       float averageScore = filterState.fsm_.getAverageScore(); // TODO: make the following dependent on the ST-score
-      if (verbose_) std::cout << "Removing features: ";
+      // if (verbose_) std::cout << "Removing features: ";
       for (unsigned int i = 0; i < mtState::nMax_; i++) {
         if (filterState.fsm_.isValid_[i]) {
           FeatureManager<mtState::nLevels_, mtState::patchSize_, mtState::nCam_> &f = filterState.fsm_.features_[i];
@@ -1273,14 +1273,14 @@ namespace rovtio {
             continue;
           }
           if (!f.mpStatistics_->isGoodFeature(trackingUpperBound_, trackingLowerBound_)) {
-            if (verbose_) std::cout << filterState.fsm_.features_[i].idx_ << ", ";
+            // if (verbose_) std::cout << filterState.fsm_.features_[i].idx_ << ", ";
             filterState.fsm_.isValid_[i] = false;
             numRemovedFeaturesThisFrame += 1;
             filterState.resetFeatureCovariance(i, Eigen::Matrix3d::Identity());
           }
         }
       }
-      if (verbose_) std::cout << " | ";
+      // if (verbose_) std::cout << " | ";
       // Check if enough free features, enforce removal
       int requiredFreeFeature = mtState::nMax_ * minTrackedAndFreeFeatures_ - countTracked;
       int possibleToRemove = 0; //  Sees how many untracked features there is in this modality
@@ -1300,7 +1300,7 @@ namespace rovtio {
 
             if (!f.mpStatistics_->trackedInSomeFrame() &&
                 !f.mpStatistics_->isGoodFeature(trackingUpperBound_ * factor, trackingLowerBound_ * factor)) {
-              if (verbose_) std::cout << filterState.fsm_.features_[featureIndex].idx_ << ", ";
+              // if (verbose_) std::cout << filterState.fsm_.features_[featureIndex].idx_ << ", ";
               filterState.fsm_.isValid_[featureIndex] = false;
               numRemovedFeaturesThisFrame += 1;
               filterState.resetFeatureCovariance(featureIndex, Eigen::Matrix3d::Identity());
@@ -1315,7 +1315,7 @@ namespace rovtio {
           fullIterations++;
         }
       }
-      if (verbose_) std::cout << std::endl;
+      // if (verbose_) std::cout << std::endl;
       const int maxFramesBeforeRecheck = 20; // TODO: Make this an input parameter. Higher value gives less computational load
       // Get new features
       if (filterState.fsm_.getValidCount() < startDetectionTh_ * mtState::nMax_ || framesSinceLastDetectionAtempt_[meas.aux().activeModality_] > maxFramesBeforeRecheck) { // Custom have a max threshold per modality to detect changing conditions
@@ -1400,23 +1400,112 @@ namespace rovtio {
               f.mpCoordinates_->drawPoint(filterState.img_[camID], cv::Scalar(255, 0, 0));
               f.mpCoordinates_->drawText(filterState.img_[camID], std::to_string(f.idx_), cv::Scalar(255, 0, 0));
               // ========= START ELLIPSE DEBUGGING =========
-              std::cout << "====== Feature Adding Debugging: " << f.idx_ << " ======" << std::endl;
-              std::cout << "Time: " << filterState.t_ << std::endl;
-              std::cout << "Detected Pixel (x,y): " << f.mpCoordinates_->c_.x << ", " << f.mpCoordinates_->c_.y << std::endl;
-              std::cout << "Pixel2DCov (FeatureOutputCov):\n" << f.mpCoordinates_->pixelCov_ << std::endl;
-              // std::cout << "Output 2D Cov (PixelOutputCov):\n" << pixelOutputCov_ << std::endl;
-              std::cout << "=========================================" << std::endl;
+              // std::cout << "====== Feature Adding Debugging: " << f.idx_ << " ======" << std::endl;
+              // std::cout << "Time: " << filterState.t_ << std::endl;
+              // std::cout << "Detected Pixel (x,y): " << f.mpCoordinates_->c_.x << ", " << f.mpCoordinates_->c_.y << std::endl;
+              // std::cout << "Pixel2DCov (FeatureOutputCov):\n" << f.mpCoordinates_->pixelCov_ << std::endl;
+              // // std::cout << "Output 2D Cov (PixelOutputCov):\n" << pixelOutputCov_ << std::endl;
+              // std::cout << "=========================================" << std::endl;
               // ========= END ELLIPSE DEBUGGING =========
             }
 
             if (mtState::nCam_ > 1 && doStereoInitialization_) {
               const int otherCam = (camID + 1) % mtState::nCam_;
+
+              // Debug: Print initCovFeature_ configuration
+              std::cout << "[DEBUG Sigma] initCovFeature_ diagonal: [" << initCovFeature_(0,0) << ", "
+                        << initCovFeature_(1,1) << ", " << initCovFeature_(2,2) << "]" << std::endl;
+
+              // Debug: Print feature covariance before transformation
+              const int feaCovIdx = mtState::template getId<mtState::_fea>(*it);
+              Eigen::Matrix3d featureCov = filterState.cov_.template block<3,3>(feaCovIdx, feaCovIdx);
+              std::cout << "[DEBUG Sigma] Feature " << f.idx_ << " covariance in filter state:\n" << featureCov << std::endl;
+
               transformFeatureOutputCT_.setFeatureID(*it);
               transformFeatureOutputCT_.setOutputCameraID(otherCam);
               transformFeatureOutputCT_.transformState(filterState.state_, featureOutput_);
+
+              // Debug: Print transformed feature uncertainty BEFORE fix
+              std::cout << "[DEBUG Sigma] Transformed feature pixelCov_ (before fix):\n" << featureOutput_.c().pixelCov_ << std::endl;
+
+              // FIX: transformState doesn't propagate covariance automatically, so we need to do it manually
+              // Get the Jacobian from the coordinate transform
+              featureOutputJac_.setZero();
+              transformFeatureOutputCT_.jacTransform(featureOutputJac_, filterState.state_);
+
+              // Extract the Jacobian block for bearing (2x2) with respect to source feature bearing
+              const int feaIdx = mtState::template getId<mtState::_fea>(*it);
+              const int outFeaIdx = FeatureOutput::template getId<FeatureOutput::_fea>();
+              Eigen::Matrix2d J_bearing = featureOutputJac_.template block<2,2>(outFeaIdx, feaIdx);
+
+              // Get the bearing covariance from the filter state (2x2 block)
+              Eigen::Matrix2d bearingCov = filterState.cov_.template block<2,2>(feaIdx, feaIdx);
+
+              // Propagate covariance: Cov_out = J * Cov_in * J^T
+              Eigen::Matrix2d pixelCov = J_bearing * bearingCov * J_bearing.transpose();
+
+              // Set the pixel covariance (this will compute sigma1, sigma2, eigenVectors)
+              featureOutput_.c().setPixelCov(pixelCov);
+
+              std::cout << "[DEBUG Sigma] FIX: Manually propagated covariance using Jacobian" << std::endl;
+              std::cout << "[DEBUG Sigma]   J_bearing:\n" << J_bearing << std::endl;
+              std::cout << "[DEBUG Sigma]   bearingCov:\n" << bearingCov << std::endl;
+              std::cout << "[DEBUG Sigma]   pixelCov = J * bearingCov * J^T:\n" << pixelCov << std::endl;
+
+              // Debug: Print transformed feature uncertainty AFTER fix
+              std::cout << "[DEBUG Sigma] Transformed feature pixelCov_ (after fix):\n" << featureOutput_.c().pixelCov_ << std::endl;
+              std::cout << "[DEBUG Sigma] Transformed sigma1=" << featureOutput_.c().sigma1_
+                        << ", sigma2=" << featureOutput_.c().sigma2_ << std::endl;
+              std::cout << "[DEBUG Sigma] Transformed eigenVector1: (" << featureOutput_.c().eigenVector1_[0]
+                        << ", " << featureOutput_.c().eigenVector1_[1] << ")" << std::endl;
+
+              // Log stereo initialization attempt
+              const cv::Point2f searchStart = featureOutput_.c().get_c();
+              const cv::Point2f featureInCam1 = f.mpCoordinates_->get_c();
+              std::cout << "[ROVTIO Stereo] Feature " << f.idx_ << " - Attempting stereo init from cam" << camID
+                        << " (" << featureInCam1.x << "," << featureInCam1.y << ") -> cam" << otherCam
+                        << " (predicted: " << searchStart.x << "," << searchStart.y << ")" << std::endl;
+
+              // Visualize stereo search on both cameras
+              if (doFrameVisualisation_) {
+                // Draw source feature in cam0 with a cyan circle
+                cv::circle(filterState.img_[camID], featureInCam1, 8, cv::Scalar(255, 255, 0), 2);
+                cv::putText(filterState.img_[camID], "S" + std::to_string(f.idx_),
+                           cv::Point2f(featureInCam1.x + 10, featureInCam1.y - 10),
+                           cv::FONT_HERSHEY_SIMPLEX, 0.4, cv::Scalar(255, 255, 0), 1);
+
+                // Draw predicted location in other camera with a yellow X
+                cv::drawMarker(filterState.img_[otherCam], searchStart, cv::Scalar(0, 255, 255),
+                              cv::MARKER_CROSS, 12, 2);
+                cv::putText(filterState.img_[otherCam], "P" + std::to_string(f.idx_),
+                           cv::Point2f(searchStart.x + 10, searchStart.y - 10),
+                           cv::FONT_HERSHEY_SIMPLEX, 0.4, cv::Scalar(0, 255, 255), 1);
+              }
+
               if (alignment_.align2DAdaptive(alignedCoordinates_, meas.aux().pyr_[otherCam], *f.mpMultilevelPatch_,
                                              featureOutput_.c(), startLevel_, endLevel_,
                                              alignConvergencePixelRange_, alignCoverageRatio_, alignMaxUniSample_)) {
+                // Draw search visualization after alignment
+                if (doFrameVisualisation_) {
+                  // Draw all search points with small green circles
+                  for (const auto& searchPt : alignment_.searchPoints_) {
+                    cv::circle(filterState.img_[otherCam], searchPt, 3, cv::Scalar(0, 150, 0), 1);
+                  }
+                  // Draw best match with large bright green circle
+                  cv::circle(filterState.img_[otherCam], alignment_.bestMatchPoint_, 10, cv::Scalar(0, 255, 0), 2);
+                  cv::putText(filterState.img_[otherCam], "M" + std::to_string(f.idx_),
+                             cv::Point2f(alignment_.bestMatchPoint_.x + 12, alignment_.bestMatchPoint_.y - 12),
+                             cv::FONT_HERSHEY_SIMPLEX, 0.4, cv::Scalar(0, 255, 0), 1);
+
+                  // Draw line from predicted to match
+                  cv::line(filterState.img_[otherCam], searchStart, alignment_.bestMatchPoint_,
+                          cv::Scalar(0, 255, 0), 1);
+                }
+                const cv::Point2f alignedPos = alignedCoordinates_.get_c();
+                const float searchDistance = cv::norm(searchStart - alignedPos);
+                std::cout << "[ROVTIO Stereo] Feature " << f.idx_ << " - 2D alignment succeeded at ("
+                          << alignedPos.x << "," << alignedPos.y << "), search distance: " << searchDistance << " px" << std::endl;
+
                 bool valid = mlpTemp1_.isMultilevelPatchInFrame(meas.aux().pyr_[otherCam], alignedCoordinates_,
                                                                 startLevel_, false);
                 if (valid && patchRejectionTh_[camID] >= 0) {
@@ -1424,10 +1513,15 @@ namespace rovtio {
                                                             false);
                   const float avgError = mlpTemp1_.computeAverageDifference(*f.mpMultilevelPatch_, endLevel_,
                                                                             startLevel_);
+                  std::cout << "[ROVTIO Stereo] Feature " << f.idx_ << " - Patch avg error: " << avgError
+                            << " (threshold: " << patchRejectionTh_[camID] << ")" << std::endl;
                   if (avgError > patchRejectionTh_[camID]) {
                     valid = false;
                   }
+                } else if (!valid) {
+                  std::cout << "[ROVTIO Stereo] Feature " << f.idx_ << " - Patch not in frame" << std::endl;
                 }
+
                 if (valid == true) {
                   if (doFrameVisualisation_) {
                     alignedCoordinates_.drawPoint(filterState.img_[otherCam], cv::Scalar(150, 0, 0));
@@ -1439,6 +1533,9 @@ namespace rovtio {
                                                                   state.qCM(otherCam) * state.qCM(camID).inverted(),
                                                                   *f.mpDistance_, 0.01)) {
                     filterState.resetFeatureCovariance(*it, initCovFeature_); // TODO: improve
+                    std::cout << "[ROVTIO Stereo] Feature " << f.idx_ << " ✓ SUCCESS - Triangulation successful, depth: " << f.mpDistance_->getDistance() << " m" << std::endl;
+                  } else {
+                    std::cout << "[ROVTIO Stereo] Feature " << f.idx_ << " ✗ FAILED - Triangulation failed (likely behind camera or too close)" << std::endl;
                   }
                 } else {
                   if (doFrameVisualisation_) {
@@ -1446,13 +1543,23 @@ namespace rovtio {
                     alignedCoordinates_.drawText(filterState.img_[otherCam], std::to_string(f.idx_),
                                                  cv::Scalar(0, 0, 150));
                   }
+                  std::cout << "[ROVTIO Stereo] Feature " << f.idx_ << " ✗ FAILED - Patch validation failed" << std::endl;
                 }
               } else {
+                // Draw failed search visualization
                 if (doFrameVisualisation_) {
-                  alignedCoordinates_.drawPoint(filterState.img_[otherCam], cv::Scalar(0, 150, 0));
-                  alignedCoordinates_.drawText(filterState.img_[otherCam], std::to_string(f.idx_),
-                                               cv::Scalar(0, 150, 0));
+                  // Draw all search points with small red circles to show where we looked
+                  for (const auto& searchPt : alignment_.searchPoints_) {
+                    cv::circle(filterState.img_[otherCam], searchPt, 3, cv::Scalar(0, 0, 150), 1);
+                  }
+                  // Draw X over predicted location to indicate failure
+                  cv::drawMarker(filterState.img_[otherCam], searchStart, cv::Scalar(0, 0, 255),
+                                cv::MARKER_TILTED_CROSS, 14, 2);
+                  cv::putText(filterState.img_[otherCam], "F" + std::to_string(f.idx_),
+                             cv::Point2f(searchStart.x + 10, searchStart.y + 15),
+                             cv::FONT_HERSHEY_SIMPLEX, 0.4, cv::Scalar(0, 0, 255), 1);
                 }
+                std::cout << "[ROVTIO Stereo] Feature " << f.idx_ << " ✗ FAILED - 2D alignment failed (no match found in search region)" << std::endl;
               }
             }
           }
@@ -1473,11 +1580,11 @@ namespace rovtio {
       }
 
       if (verbose_) {
-        for (int i = 0; i < mtState::nCam_; i++) {
-          std::cout << "Camera extrinsics: " << i << std::endl;
-          std::cout << "  " << filterState.state_.qCM(i) << std::endl;
-          std::cout << "  " << filterState.state_.MrMC(i).transpose() << std::endl;
-        }
+        // for (int i = 0; i < mtState::nCam_; i++) {
+        //   std::cout << "Camera extrinsics: " << i << std::endl;
+        //   std::cout << "  " << filterState.state_.qCM(i) << std::endl;
+        //   std::cout << "  " << filterState.state_.MrMC(i).transpose() << std::endl;
+        // }
       }
 
       filterState.prevPyr_[meas.aux().activeModality_] = meas.aux().pyr_[meas.aux().activeModality_];

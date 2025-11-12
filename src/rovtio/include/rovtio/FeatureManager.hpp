@@ -302,7 +302,7 @@ class FeatureSetManager{
     }
 
 
-    std::cout << "findcandidatescore: MultilevelPactes.size(): " << multilevelPatches.size() << ", maxScore: " << maxScore << '\n';
+    // std::cout << "findcandidatescore: MultilevelPactes.size(): " << multilevelPatches.size() << ", maxScore: " << maxScore << '\n';
     return maxScore;
   }
 

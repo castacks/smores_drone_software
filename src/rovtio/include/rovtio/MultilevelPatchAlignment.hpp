@@ -60,6 +60,13 @@ class MultilevelPatchAlignment {
   bool useIntensitySqew_; /**<Should an intensity sqewing between the patches be considered.*/
   float gradientExponent_;  /**<Exponent used for gradient based weighting of residuals.*/
 
+  // Visualization data for stereo search debugging
+  mutable std::vector<cv::Point2f> searchPoints_;  /**<All search point locations from last align2DAdaptive call.*/
+  mutable cv::Point2f predictedPoint_;  /**<Predicted location from last align2DAdaptive call.*/
+  mutable cv::Point2f bestMatchPoint_;  /**<Best match location from last align2DAdaptive call.*/
+  mutable bool searchSucceeded_;  /**<Whether last align2DAdaptive call succeeded.*/
+  mutable int lastSearchN_;  /**<Number of search samples (n) from last align2DAdaptive call.*/
+
   /** \brief Constructor
    */
   MultilevelPatchAlignment(){
@@ -69,6 +76,8 @@ class MultilevelPatchAlignment {
     useIntensityOffset_ = true;
     useIntensitySqew_ = true;
     gradientExponent_ = 0.0;
+    searchSucceeded_ = false;
+    lastSearchN_ = 0;
   }
 
   /** \brief Computes the weigting mask for patches
@@ -595,27 +604,83 @@ class MultilevelPatchAlignment {
                        const int lowest_level = nLevels,const int highest_level = 0, const double convergencePixelRange = 1.0,  const double coverageRatio = 2.0, const int maxUniSample = 5){
     bestIntensityError_ = -1;
     cOut = cInit;
+
+    // Store visualization data
+    predictedPoint_ = cInit.get_c();
+    searchPoints_.clear();
+    searchSucceeded_ = false;
+
+    // Calculate n and print comprehensive debug info
+    const double spacing = convergencePixelRange * pow(2.0, lowest_level + 1);
     const int n = std::min(std::max(static_cast<int>(ceil((cInit.sigma1_*coverageRatio)/(convergencePixelRange*pow(2.0,lowest_level+1))-0.5)),0),maxUniSample); // (n+0.5)*r*2^(l+1) > s*f
+    lastSearchN_ = n;
+
+    std::cout << "[Align2DAdaptive] Predicted location: (" << cInit.get_c().x << ", " << cInit.get_c().y << ")" << std::endl;
+    std::cout << "[Align2DAdaptive] sigma1=" << cInit.sigma1_ << ", coverageRatio=" << coverageRatio
+              << ", convergencePixelRange=" << convergencePixelRange << ", lowest_level=" << lowest_level << std::endl;
+    std::cout << "[Align2DAdaptive] Spacing=" << spacing << " px, n=" << n << " (maxUniSample=" << maxUniSample << ")" << std::endl;
+    std::cout << "[Align2DAdaptive] Uncertainty eigenvector: (" << cInit.eigenVector1_[0] << ", "
+              << cInit.eigenVector1_[1] << ", " << cInit.eigenVector1_[2] << ")" << std::endl;
+
     if(n==0){ // Catch simple case
-      return align2D(cOut,pyr,mp,cInit,highest_level,lowest_level);
+      std::cout << "[Align2DAdaptive] n=0, using single hypothesis at predicted location" << std::endl;
+      searchPoints_.push_back(cInit.get_c());  // Store the single search point
+      bool success = align2D(cOut,pyr,mp,cInit,highest_level,lowest_level);
+      std::cout << "[Align2DAdaptive] Single hypothesis result: " << (success ? "SUCCESS" : "FAILED") << std::endl;
+      if (success) {
+        bestMatchPoint_ = cOut.get_c();
+        searchSucceeded_ = true;
+      }
+      return success;
     }
+
+    std::cout << "[Align2DAdaptive] Multi-hypothesis search: " << (2*n+1) << " points from i=" << -n << " to i=" << n << std::endl;
+
     for(int i = -n;i<=n;i++){ // i is the multiple of steps which should be taken along the directions
-      cOut.set_c(cInit.get_c() + vecToPoint2f(cInit.eigenVector1_.cast<float>()*i*convergencePixelRange*pow(2.0,lowest_level+1)),false);
+      const cv::Point2f searchOffset = vecToPoint2f(cInit.eigenVector1_.cast<float>()*i*convergencePixelRange*pow(2.0,lowest_level+1));
+      const cv::Point2f searchPoint = cInit.get_c() + searchOffset;
+      searchPoints_.push_back(searchPoint);  // Store each search point for visualization
+      cOut.set_c(searchPoint,false);
+
+      std::cout << "[Align2DAdaptive]   Hypothesis i=" << i << ": searching at (" << searchPoint.x << ", " << searchPoint.y
+                << ") [offset: (" << searchOffset.x << ", " << searchOffset.y << ")]" << std::endl;
+
       if(align2D(cOut,pyr,mp,cOut,highest_level,lowest_level)){
+        const cv::Point2f convergedPoint = cOut.get_c();
+        const float convergeDist = cv::norm(searchPoint - convergedPoint);
+
         if(mlpTemp_.isMultilevelPatchInFrame(pyr,cOut,lowest_level,false)){
           mlpTemp_.extractMultilevelPatchFromImage(pyr,cOut,lowest_level,false);
           const float avgError = mlpTemp_.computeAverageDifference(mp,highest_level,lowest_level);
+
+          std::cout << "[Align2DAdaptive]     → Converged to (" << convergedPoint.x << ", " << convergedPoint.y
+                    << "), moved " << convergeDist << " px, intensity error=" << avgError << std::endl;
+
           if(bestIntensityError_ == -1 || avgError<bestIntensityError_){
             bestCoordinateMatch_ = cOut;
             bestIntensityError_ = avgError;
+            std::cout << "[Align2DAdaptive]     → NEW BEST MATCH (error=" << avgError << ")" << std::endl;
           }
+        } else {
+          std::cout << "[Align2DAdaptive]     → Converged but patch not in frame" << std::endl;
         }
+      } else {
+        std::cout << "[Align2DAdaptive]     → Alignment FAILED to converge" << std::endl;
       }
     }
+
     if(bestIntensityError_ == -1){
+      std::cout << "[Align2DAdaptive] FINAL: No valid match found" << std::endl;
+      searchSucceeded_ = false;
       return false;
     } else {
       cOut = bestCoordinateMatch_;
+      bestMatchPoint_ = bestCoordinateMatch_.get_c();
+      searchSucceeded_ = true;
+      const float totalDistance = cv::norm(cInit.get_c() - bestCoordinateMatch_.get_c());
+      std::cout << "[Align2DAdaptive] FINAL: Best match at (" << bestCoordinateMatch_.get_c().x << ", "
+                << bestCoordinateMatch_.get_c().y << "), total distance from predicted=" << totalDistance
+                << " px, intensity error=" << bestIntensityError_ << std::endl;
       return true;
     }
   }
