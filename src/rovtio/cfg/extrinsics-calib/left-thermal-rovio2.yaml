@@ -1,0 +1,21 @@
+###### Camera Calibration File For Left Thermal Camera (Calibration Set 2) ######
+image_width: 640
+image_height: 512
+camera_name: left_thermal
+camera_matrix:
+  rows: 3
+  cols: 3
+  data: [407.7499750702055, 0.0, 313.50560818352983, 0.0, 407.91579611591817, 242.84664219423712, 0.0, 0.0, 1.0]
+distortion_model: plumb_bob
+distortion_coefficients:
+  rows: 1
+  cols: 5
+  data: [-0.3808948112886348, 0.14797211824611203, 0.0005002325802094506, -0.0011293664706212622, 0.0]
+
+###### Original Calibration Data ######
+## From left2.txt calibration (2025-11-10):
+# intrinsics: [fx, fy, cx, cy] = [407.7499750702055, 407.91579611591817, 313.50560818352983, 242.84664219423712]
+# distortion_coeffs: [-0.3808948112886348, 0.14797211824611203, 0.0005002325802094506, -0.0011293664706212622, 0.0]
+# distortion_model: radtan (plumb_bob)
+# resolution: [640, 512]
+# rostopic: /thermal_left/image

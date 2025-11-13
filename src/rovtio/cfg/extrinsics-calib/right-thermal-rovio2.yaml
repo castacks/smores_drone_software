@@ -1,0 +1,21 @@
+###### Camera Calibration File For Right Thermal Camera (Calibration Set 2) ######
+image_width: 640
+image_height: 512
+camera_name: right_thermal
+camera_matrix:
+  rows: 3
+  cols: 3
+  data: [412.3881551334382, 0.0, 307.01183930067657, 0.0, 413.0132112031726, 241.57164207767764, 0.0, 0.0, 1.0]
+distortion_model: plumb_bob
+distortion_coefficients:
+  rows: 1
+  cols: 5
+  data: [-0.3929695537479355, 0.15886396952343854, -0.00048514004765945294, 0.0009248098508330513, 0.0]
+
+###### Original Calibration Data ######
+## From right2.txt calibration (2025-11-10):
+# intrinsics: [fx, fy, cx, cy] = [412.3881551334382, 413.0132112031726, 307.01183930067657, 241.57164207767764]
+# distortion_coeffs: [-0.3929695537479355, 0.15886396952343854, -0.00048514004765945294, 0.0009248098508330513, 0.0]
+# distortion_model: radtan (plumb_bob)
+# resolution: [640, 512]
+# rostopic: /thermal_right/image

@@ -1439,12 +1439,17 @@ namespace rovtio {
                                                                   state.qCM(otherCam) * state.qCM(camID).inverted(),
                                                                   *f.mpDistance_, 0.01)) {
                     filterState.resetFeatureCovariance(*it, initCovFeature_); // TODO: improve
+                    std::string debugOutputDist = std::to_string(f.mpDistance_->getDistance());
+                    alignedCoordinates_.drawText(filterState.img_[otherCam], "Matched, distance: " + debugOutputDist,
+                                                 cv::Scalar(150, 150, 0));
                   }
                 } else {
                   if (doFrameVisualisation_) {
                     alignedCoordinates_.drawPoint(filterState.img_[otherCam], cv::Scalar(0, 0, 150));
                     alignedCoordinates_.drawText(filterState.img_[otherCam], std::to_string(f.idx_),
                                                  cv::Scalar(0, 0, 150));
+                    alignedCoordinates_.drawText(filterState.img_[otherCam], "Could not match, invalid match",
+                                                 cv::Scalar(150, 150, 0));
                   }
                 }
               } else {
@@ -1452,6 +1457,8 @@ namespace rovtio {
                   alignedCoordinates_.drawPoint(filterState.img_[otherCam], cv::Scalar(0, 150, 0));
                   alignedCoordinates_.drawText(filterState.img_[otherCam], std::to_string(f.idx_),
                                                cv::Scalar(0, 150, 0));
+                  alignedCoordinates_.drawText(filterState.img_[otherCam], "Match not found",
+                                               cv::Scalar(150, 150, 0));
                 }
               }
             }
