@@ -592,7 +592,7 @@ class MultilevelPatchAlignment {
    * @return true, if alignment converged!
    */
   bool align2DAdaptive(FeatureCoordinates& cOut, const ImagePyramid<nLevels>& pyr, const MultilevelPatch<nLevels,patch_size>& mp, const FeatureCoordinates& cInit,
-                       const int lowest_level = nLevels,const int highest_level = 0, const double convergencePixelRange = 1.0,  const double coverageRatio = 2.0, const int maxUniSample = 5, const bool debug = false){
+                       const int lowest_level = nLevels,const int highest_level = 0, const double convergencePixelRange = 1.0,  const double coverageRatio = 2.0, const int maxUniSample = 5, const bool debug = false, cv::Mat* imageToMark=nullptr, int featureId=0){
     bestIntensityError_ = -1;
     cOut = cInit;
     const int n = std::min(std::max(static_cast<int>(ceil((cInit.sigma1_*coverageRatio)/(convergencePixelRange*pow(2.0,lowest_level+1))-0.5)),0),maxUniSample); // (n+0.5)*r*2^(l+1) > s*f
@@ -602,18 +602,41 @@ class MultilevelPatchAlignment {
         std::cout<<"    n="<<n<<std::endl;
     }
     if(n==0){ // Catch simple case
+      if(debug){
+          std::cout<<"      searching at: "<<cInit.get_c()<<std::endl;
+      }
+      if(imageToMark != nullptr){
+            cOut.drawPoint(*imageToMark, cv::Scalar(0, 0, 255));
+            cOut.drawText(*imageToMark, "T"+std::to_string(featureId), cv::Scalar(0, 255, 255));
+      }
       return align2D(cOut,pyr,mp,cInit,highest_level,lowest_level);
     }
     for(int i = -n;i<=n;i++){ // i is the multiple of steps which should be taken along the directions
       cOut.set_c(cInit.get_c() + vecToPoint2f(cInit.eigenVector1_.cast<float>()*i*convergencePixelRange*pow(2.0,lowest_level+1)),false);
+      if(debug)
+          std::cout<<"      searching at: "<<cOut.get_c()<<std::endl;
       if(align2D(cOut,pyr,mp,cOut,highest_level,lowest_level)){
         if(mlpTemp_.isMultilevelPatchInFrame(pyr,cOut,lowest_level,false)){
           mlpTemp_.extractMultilevelPatchFromImage(pyr,cOut,lowest_level,false);
           const float avgError = mlpTemp_.computeAverageDifference(mp,highest_level,lowest_level);
+
           if(bestIntensityError_ == -1 || avgError<bestIntensityError_){
             bestCoordinateMatch_ = cOut;
             bestIntensityError_ = avgError;
+            if(debug)
+                std::cout<<"        found best candidate at: "<<cOut.get_c()<<std::endl;
           }
+          if(imageToMark != nullptr){
+                    cOut.drawPoint(*imageToMark, cv::Scalar(0, 0, 255));
+                    cOut.drawText(*imageToMark, "M"+std::to_string(featureId), cv::Scalar(0, 0, 255));
+          }
+        }
+        else
+        {
+            if(imageToMark != nullptr){
+                      cOut.drawPoint(*imageToMark, cv::Scalar(0, 0, 255));
+                      cOut.drawText(*imageToMark, "T"+std::to_string(featureId), cv::Scalar(0, 255, 255));
+            }
         }
       }
     }

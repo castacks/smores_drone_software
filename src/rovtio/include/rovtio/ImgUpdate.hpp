@@ -842,12 +842,12 @@ namespace rovtio {
                 if (activeCamID == camID) {
                   featureOutput_.c().drawEllipse(drawImg_, cv::Scalar(0, 175, 175), 2.0, true);
                   // featureOutput_.c().drawText(drawImg_, std::to_string(f.idx_), cv::Scalar(0, 175, 175));
-                  featureOutput_.c().drawText(drawImg_, std::to_string(f.mpDistance_->getDistance()), cv::Scalar(0, 175, 175));
+                  featureOutput_.c().drawText(drawImg_, std::to_string(f.mpDistance_->getDistance()), cv::Scalar(255, 0, 0));
 
                 } else {
                   featureOutput_.c().drawEllipse(drawImg_, cv::Scalar(175, 175, 0), 2.0, true);
                   // featureOutput_.c().drawText(drawImg_, std::to_string(f.idx_), cv::Scalar(175, 175, 0));
-                  featureOutput_.c().drawText(drawImg_, std::to_string(f.mpDistance_->getDistance()), cv::Scalar(175, 175, 0));
+                  featureOutput_.c().drawText(drawImg_, std::to_string(f.mpDistance_->getDistance()), cv::Scalar(255, 0, 0));
                 }
               }
               if (visualizePatches_) {
@@ -1384,10 +1384,15 @@ namespace rovtio {
 
           numAddedFeatures = newSet.size();
           const double t3 = (double) cv::getTickCount();
-          if (verbose_)
-            std::cout << "== Got " << filterState.fsm_.getValidCount() << " after adding " << newSet.size()
-                      << " features in camera " << camID << " (" << (t3 - t2) / cv::getTickFrequency() * 1000 << " ms)"
-                      << std::endl;
+          // if (verbose_)
+          //   std::cout << "== Got " << filterState.fsm_.getValidCount() << " after adding " << newSet.size()
+          //             << " features in camera " << camID << " (" << (t3 - t2) / cv::getTickFrequency() * 1000 << " ms)"
+          //             << std::endl;
+          std::vector<cv::Mat> imagesForSave;
+          for(int i = 0; i < mtState::nCam_; i++){
+              imagesForSave.emplace_back(filterState.img_[i].clone());
+          }
+          bool saveImages = false;
           for (auto it = newSet.begin(); it != newSet.end(); ++it) {
             FeatureManager<mtState::nLevels_, mtState::patchSize_, mtState::nCam_> &f = filterState.fsm_.features_[*it];
             f.mpStatistics_->resetStatistics(filterState.t_);
@@ -1411,11 +1416,6 @@ namespace rovtio {
               // std::cout << "=========================================" << std::endl;
               // ========= END ELLIPSE DEBUGGING =========
             }
-            std::vector<cv::Mat> imagesForSave(mtState::nCam_);
-            for(int i = 0; i < mtState::nCam_; i++){
-                imagesForSave.emplace_back(filterState.img_[i].clone());
-            }
-            cv::Mat nativeCamImage = filterState.img_[camID].clone();
             if (mtState::nCam_ > 1 && doStereoInitialization_) {
               const int otherCam = (camID + 1) % mtState::nCam_;
               transformFeatureOutputCT_.setFeatureID(*it);
@@ -1426,10 +1426,11 @@ namespace rovtio {
               featureOutput_.c().drawEllipse(drawImg_, cv::Scalar(0, 0, 255), 10, false);
               std::cout<<"Attempting to triangulate feature "<<f.idx_<<std::endl;
               f.mpCoordinates_->drawPoint(imagesForSave[camID], cv::Scalar(255, 0, 0));
-              f.mpCoordinates_->drawPoint(imagesForSave[otherCam], cv::Scalar(0, 0, 255));
+              f.mpCoordinates_->drawText(imagesForSave[camID], "F"+std::to_string(f.idx_), cv::Scalar(255, 0, 0));
+              saveImages = true;
               if (alignment_.align2DAdaptive(alignedCoordinates_, meas.aux().pyr_[otherCam], *f.mpMultilevelPatch_,
                                              featureOutput_.c(), startLevel_, endLevel_,
-                                             alignConvergencePixelRange_, alignCoverageRatio_, alignMaxUniSample_, true)) {
+                                             alignConvergencePixelRange_, alignCoverageRatio_, alignMaxUniSample_, true, &imagesForSave[otherCam], f.idx_)) {
                 bool valid = mlpTemp1_.isMultilevelPatchInFrame(meas.aux().pyr_[otherCam], alignedCoordinates_,
                                                                 startLevel_, false);
                 if (valid && patchRejectionTh_[camID] >= 0) {
@@ -1451,7 +1452,9 @@ namespace rovtio {
                           V3D(state.MrMC(camID) - state.MrMC(otherCam))),
                                                                   state.qCM(otherCam) * state.qCM(camID).inverted(),
                                                                   *f.mpDistance_, 0.01)) {
-                    filterState.resetFeatureCovariance(*it, initCovFeature_); // TODO: improve
+                    M3D betterFeatCov = initCovFeature_;
+                    betterFeatCov(2, 2) = betterFeatCov(2, 2)/1000.f;
+                    filterState.resetFeatureCovariance(*it, betterFeatCov); // TODO: improve
                     std::string debugOutputDist = std::to_string(f.mpDistance_->getDistance());
                     alignedCoordinates_.drawText(filterState.img_[otherCam], "Matched, distance: " + debugOutputDist,
                                                  cv::Scalar(150, 150, 0));
@@ -1479,6 +1482,15 @@ namespace rovtio {
               }
             }
           }
+          // if(saveImages){
+          //     for(int i = 0; i < mtState::nCam_; i++){
+          //         if(!imagesForSave[i].empty()){
+          //          cv::imwrite("/external/smores_drone_software/run/"+std::to_string(filterState.t_)+"_"+std::to_string(i)+".png", imagesForSave[i]);
+          //         } else{
+          //             std::cout<<"Empty Image!\n";
+          //         }
+          //     }
+          // }
         }
       }else{
         // We did not consider this frames since there was enough features already
