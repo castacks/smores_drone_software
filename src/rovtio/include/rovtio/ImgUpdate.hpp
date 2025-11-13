@@ -671,11 +671,11 @@ namespace rovtio {
     void commonPreProcess(mtFilterState &filterState, const mtMeas &meas) {
       // ========= PRINT IMU POSE ==========
       const auto& state = filterState.state_;
-      std::cout << "============ IMU Preintegration Result ============" << std::endl;
-      std::cout << "Time: " << filterState.t_ << std::endl;
-      std::cout << "Orientation qWM (w,x,y,z): " << state.qWM().w() << ", " << state.qWM().x() << ", " << state.qWM().y() << ", " << state.qWM().z() << std::endl;
-      std::cout << "Position WrWM (x,y,z): " << state.WrWM().x() << ", " << state.WrWM().y() << ", " << state.WrWM().z() << std::endl;
-      std::cout << "=================================================" << std::endl;
+      // std::cout << "============ IMU Preintegration Result ============" << std::endl;
+      // std::cout << "Time: " << filterState.t_ << std::endl;
+      // std::cout << "Orientation qWM (w,x,y,z): " << state.qWM().w() << ", " << state.qWM().x() << ", " << state.qWM().y() << ", " << state.qWM().z() << std::endl;
+      // std::cout << "Position WrWM (x,y,z): " << state.WrWM().x() << ", " << state.WrWM().y() << ", " << state.WrWM().z() << std::endl;
+      // std::cout << "=================================================" << std::endl;
       // ===================================
 
       assert(filterState.t_ == meas.aux().imgTime_);
@@ -784,9 +784,9 @@ namespace rovtio {
             if (activeCamCounter == 0) {
               f.mpStatistics_->increaseStatistics(filterState.t_);
               if (verbose_) {
-                std::cout << "=========== Feature " << f.idx_
-                          << " ==================================================== "
-                          << std::endl;
+                // std::cout << "=========== Feature " << f.idx_
+                //           << " ==================================================== "
+                //           << std::endl;
               }
               // Visualize patch tracking
               if (visualizePatches_) {
@@ -801,10 +801,10 @@ namespace rovtio {
               f.log_prediction_ = *f.mpCoordinates_;
             }
             if (verbose_) {
-              std::cout << "  ========== Camera  " << activeCamID << " ================= " << std::endl;
-              std::cout << "  Normal in feature frame: " << f.mpCoordinates_->get_nor().getVec().transpose()
-                        << std::endl;
-              std::cout << "  with depth: " << f.mpDistance_->getDistance() << std::endl;
+              // std::cout << "  ========== Camera  " << activeCamID << " ================= " << std::endl;
+              // std::cout << "  Normal in feature frame: " << f.mpCoordinates_->get_nor().getVec().transpose()
+              //           << std::endl;
+              // std::cout << "  with depth: " << f.mpDistance_->getDistance() << std::endl;
             }
           }
 
@@ -832,19 +832,22 @@ namespace rovtio {
               // Visualization
               if (doFrameVisualisation_) {
                 // ========= START ELLIPSE DEBUGGING =========
-                std::cout << "====== Ellipse Debug for Feature: " << f.idx_ << " ======" << std::endl;
-                std::cout << "Time: " << filterState.t_ << std::endl;
-                std::cout << "Predicted Pixel (x,y): " << featureOutput_.c().get_c().x << ", " << featureOutput_.c().get_c().y << std::endl;
-                std::cout << "Input 3D Cov (FeatureOutputCov):\n" << featureOutputCov_ << std::endl;
-                std::cout << "Output 2D Cov (PixelOutputCov):\n" << pixelOutputCov_ << std::endl;
-                std::cout << "=========================================" << std::endl;
+                // std::cout << "====== Ellipse Debug for Feature: " << f.idx_ << " ======" << std::endl;
+                // std::cout << "Time: " << filterState.t_ << std::endl;
+                // std::cout << "Predicted Pixel (x,y): " << featureOutput_.c().get_c().x << ", " << featureOutput_.c().get_c().y << std::endl;
+                // std::cout << "Input 3D Cov (FeatureOutputCov):\n" << featureOutputCov_ << std::endl;
+                // std::cout << "Output 2D Cov (PixelOutputCov):\n" << pixelOutputCov_ << std::endl;
+                // std::cout << "=========================================" << std::endl;
                 // ========= END ELLIPSE DEBUGGING =========
                 if (activeCamID == camID) {
                   featureOutput_.c().drawEllipse(drawImg_, cv::Scalar(0, 175, 175), 2.0, true);
-                  featureOutput_.c().drawText(drawImg_, std::to_string(f.idx_), cv::Scalar(0, 175, 175));
+                  // featureOutput_.c().drawText(drawImg_, std::to_string(f.idx_), cv::Scalar(0, 175, 175));
+                  featureOutput_.c().drawText(drawImg_, std::to_string(f.mpDistance_->getDistance()), cv::Scalar(0, 175, 175));
+
                 } else {
                   featureOutput_.c().drawEllipse(drawImg_, cv::Scalar(175, 175, 0), 2.0, true);
-                  featureOutput_.c().drawText(drawImg_, std::to_string(f.idx_), cv::Scalar(175, 175, 0));
+                  // featureOutput_.c().drawText(drawImg_, std::to_string(f.idx_), cv::Scalar(175, 175, 0));
+                  featureOutput_.c().drawText(drawImg_, std::to_string(f.mpDistance_->getDistance()), cv::Scalar(175, 175, 0));
                 }
               }
               if (visualizePatches_) {
@@ -875,20 +878,20 @@ namespace rovtio {
                                                alignConvergencePixelRange_, alignCoverageRatio_, alignMaxUniSample_)) {
                   if (verbose_){
                     // ========= FULL FEATURE DEBUG =========
-                    std::cout << "====== Feature Debug: " << f.idx_ << " Cam: " << activeCamID << " Time: " << filterState.t_ << " ======" << std::endl;
+                    // std::cout << "====== Feature Debug: " << f.idx_ << " Cam: " << activeCamID << " Time: " << filterState.t_ << " ======" << std::endl;
                     // Prediction
                     const V3D predicted_bearing = featureOutput_.c().get_nor().getVec();
                     const double predicted_dist = featureOutput_.d().getDistance();
                     const V3D predicted_3d_pos = predicted_dist * predicted_bearing;
-                    std::cout << "PREDICTED 3D Pos (cam frame): " << predicted_3d_pos.transpose() << std::endl;
-                    std::cout << "PREDICTED 2D Pixel (x,y):   " << featureOutput_.c().get_c().x << ", " << featureOutput_.c().get_c().y << std::endl;
+                    // std::cout << "PREDICTED 3D Pos (cam frame): " << predicted_3d_pos.transpose() << std::endl;
+                    // std::cout << "PREDICTED 2D Pixel (x,y):   " << featureOutput_.c().get_c().x << ", " << featureOutput_.c().get_c().y << std::endl;
                     // Measurement
                     alignedCoordinates_.com_c();
                     const cv::Point2f found_pixel = alignedCoordinates_.get_c();
-                    std::cout << "FOUND 2D Pixel (x,y):       " << found_pixel.x << ", " << found_pixel.y << std::endl;
+                    // std::cout << "FOUND 2D Pixel (x,y):       " << found_pixel.x << ", " << found_pixel.y << std::endl;
                     // Ellipse Data
-                    std::cout << "Output 2D Cov (PixelOutputCov):\n" << pixelOutputCov_ << std::endl;
-                    std::cout << "==================================================" << std::endl;
+                    // std::cout << "Output 2D Cov (PixelOutputCov):\n" << pixelOutputCov_ << std::endl;
+                    // std::cout << "==================================================" << std::endl;
                     // ========= END FULL FEATURE DEBUG =========
                   }
                   if (mlpTemp1_.isMultilevelPatchInFrame(meas.aux().pyr_[activeCamID], alignedCoordinates_, startLevel_,
@@ -1400,23 +1403,33 @@ namespace rovtio {
               f.mpCoordinates_->drawPoint(filterState.img_[camID], cv::Scalar(255, 0, 0));
               f.mpCoordinates_->drawText(filterState.img_[camID], std::to_string(f.idx_), cv::Scalar(255, 0, 0));
               // ========= START ELLIPSE DEBUGGING =========
-              std::cout << "====== Feature Adding Debugging: " << f.idx_ << " ======" << std::endl;
-              std::cout << "Time: " << filterState.t_ << std::endl;
-              std::cout << "Detected Pixel (x,y): " << f.mpCoordinates_->c_.x << ", " << f.mpCoordinates_->c_.y << std::endl;
-              std::cout << "Pixel2DCov (FeatureOutputCov):\n" << f.mpCoordinates_->pixelCov_ << std::endl;
-              // std::cout << "Output 2D Cov (PixelOutputCov):\n" << pixelOutputCov_ << std::endl;
-              std::cout << "=========================================" << std::endl;
+              // std::cout << "====== Feature Adding Debugging: " << f.idx_ << " ======" << std::endl;
+              // std::cout << "Time: " << filterState.t_ << std::endl;
+              // std::cout << "Detected Pixel (x,y): " << f.mpCoordinates_->c_.x << ", " << f.mpCoordinates_->c_.y << std::endl;
+              // std::cout << "Pixel2DCov (FeatureOutputCov):\n" << f.mpCoordinates_->pixelCov_ << std::endl;
+              // // std::cout << "Output 2D Cov (PixelOutputCov):\n" << pixelOutputCov_ << std::endl;
+              // std::cout << "=========================================" << std::endl;
               // ========= END ELLIPSE DEBUGGING =========
             }
-
+            std::vector<cv::Mat> imagesForSave(mtState::nCam_);
+            for(int i = 0; i < mtState::nCam_; i++){
+                imagesForSave.emplace_back(filterState.img_[i].clone());
+            }
+            cv::Mat nativeCamImage = filterState.img_[camID].clone();
             if (mtState::nCam_ > 1 && doStereoInitialization_) {
               const int otherCam = (camID + 1) % mtState::nCam_;
               transformFeatureOutputCT_.setFeatureID(*it);
               transformFeatureOutputCT_.setOutputCameraID(otherCam);
               transformFeatureOutputCT_.transformState(filterState.state_, featureOutput_);
+              featureOutput_.c().sigma1_ = 10.0;
+              featureOutput_.c().eigenVector1_.x() = 10.f;
+              featureOutput_.c().drawEllipse(drawImg_, cv::Scalar(0, 0, 255), 10, false);
+              std::cout<<"Attempting to triangulate feature "<<f.idx_<<std::endl;
+              f.mpCoordinates_->drawPoint(imagesForSave[camID], cv::Scalar(255, 0, 0));
+              f.mpCoordinates_->drawPoint(imagesForSave[otherCam], cv::Scalar(0, 0, 255));
               if (alignment_.align2DAdaptive(alignedCoordinates_, meas.aux().pyr_[otherCam], *f.mpMultilevelPatch_,
                                              featureOutput_.c(), startLevel_, endLevel_,
-                                             alignConvergencePixelRange_, alignCoverageRatio_, alignMaxUniSample_)) {
+                                             alignConvergencePixelRange_, alignCoverageRatio_, alignMaxUniSample_, true)) {
                 bool valid = mlpTemp1_.isMultilevelPatchInFrame(meas.aux().pyr_[otherCam], alignedCoordinates_,
                                                                 startLevel_, false);
                 if (valid && patchRejectionTh_[camID] >= 0) {
@@ -1442,6 +1455,7 @@ namespace rovtio {
                     std::string debugOutputDist = std::to_string(f.mpDistance_->getDistance());
                     alignedCoordinates_.drawText(filterState.img_[otherCam], "Matched, distance: " + debugOutputDist,
                                                  cv::Scalar(150, 150, 0));
+                    std::cout<<"\t\tFeature "<<f.idx_<<" MATCH distance: "<<f.mpDistance_->getDistance()<<std::endl;
                   }
                 } else {
                   if (doFrameVisualisation_) {
@@ -1450,6 +1464,7 @@ namespace rovtio {
                                                  cv::Scalar(0, 0, 150));
                     alignedCoordinates_.drawText(filterState.img_[otherCam], "Could not match, invalid match",
                                                  cv::Scalar(150, 150, 0));
+                    std::cout<<"\t\tFeature "<<f.idx_<<" invalid match"<<std::endl;
                   }
                 }
               } else {
@@ -1459,6 +1474,7 @@ namespace rovtio {
                                                cv::Scalar(0, 150, 0));
                   alignedCoordinates_.drawText(filterState.img_[otherCam], "Match not found",
                                                cv::Scalar(150, 150, 0));
+                  std::cout<<"\t\tFeature "<<f.idx_<<" MATCH NOT FOUND"<<std::endl;
                 }
               }
             }

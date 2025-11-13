@@ -172,6 +172,7 @@ namespace rovtio {
 
     FilterInitializationState init_state_;
 
+
     bool forceOdometryPublishing_;
     bool forcePoseWithCovariancePublishing_;
     bool forceTransformPublishing_;
@@ -799,7 +800,7 @@ namespace rovtio {
    */
     template<int i>
     void imgCallbackRoot(const std::shared_ptr<sensor_msgs::msg::Image const> &img) {
-      RCLCPP_INFO(this->get_logger(), "Image Handler Called: %d", i);
+      // RCLCPP_INFO(this->get_logger(), "Image Handler Called: %d", i);
       std::lock_guard<std::mutex> lock(imgLock);
       rclcpp::Time current_stamp(img->header.stamp, RCL_ROS_TIME);
 
@@ -829,7 +830,7 @@ namespace rovtio {
      *   @param camID - Camera ID.
      */
     void imgCallback(const std::shared_ptr<sensor_msgs::msg::Image const> &img, const int camID = 0) {
-      RCLCPP_INFO_STREAM(this->get_logger(), "Image Handler Called: ID: " << camID);
+      // RCLCPP_INFO_STREAM(this->get_logger(), "Image Handler Called: ID: " << camID);
       if (storeRuntimes) imageReceivedTimes[camID].push(std::chrono::steady_clock::now());
       // To leave out a camera if it stops providing images
       camActive_[camID] = true;
@@ -1008,7 +1009,7 @@ namespace rovtio {
         imgLock.lock();
         // RCLCPP_INFO(this->get_logger(), "locked");
         if (canAddImage(lastTimeReceived, camActive_)) {
-          RCLCPP_INFO(this->get_logger(), "canAddImage");
+          // RCLCPP_INFO(this->get_logger(), "canAddImage");
           int camIDOldestImg = getOldestCam(lastTimeReceived, camActive_);
           double oldestUnprocessedImageTimestamp;
           if (!std::get<0>(mpFilter_->updateTimelineTuple_).measMap_.empty()) {
@@ -1230,7 +1231,7 @@ namespace rovtio {
               odometryMsg_.twist.covariance[j + 6 * i] = imuOutputCov_(ind1, ind2);
             }
           }
-          RCLCPP_INFO(this->get_logger(), "PUBLISHING");
+          // RCLCPP_INFO(this->get_logger(), "PUBLISHING");
           pubOdometry_->publish(odometryMsg_);
           // }
 

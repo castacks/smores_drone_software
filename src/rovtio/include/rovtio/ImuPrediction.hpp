@@ -141,14 +141,14 @@ class ImuPrediction: public LWF::Prediction<FILTERSTATE>{
     const V3D acc_bias = state.acb();
     const V3D g_body = state.qWM().inverseRotate(g_);
     const V3D acc_true = acc_raw - acc_bias + g_body;
-    std::cout << "====== Corrected IMU Accel (m/s^2) ======" << std::endl;
-    std::cout << "Raw:      " << acc_raw.transpose() << std::endl;
-    std::cout << "Bias:     " << acc_bias.transpose() << std::endl;
-    std::cout << "qWM (w,x,y,z): " << state.qWM().w() << ", " << state.qWM().x() << ", " << state.qWM().y() << ", " << state.qWM().z() << std::endl;
-    std::cout << "g (world):  " << g_.transpose() << std::endl;
-    std::cout << "g (body): " << g_body.transpose() << std::endl;
-    std::cout << "True Acc: " << acc_true.transpose() << std::endl;
-    std::cout << "=========================================" << std::endl;
+    // std::cout << "====== Corrected IMU Accel (m/s^2) ======" << std::endl;
+    // std::cout << "Raw:      " << acc_raw.transpose() << std::endl;
+    // std::cout << "Bias:     " << acc_bias.transpose() << std::endl;
+    // std::cout << "qWM (w,x,y,z): " << state.qWM().w() << ", " << state.qWM().x() << ", " << state.qWM().y() << ", " << state.qWM().z() << std::endl;
+    // std::cout << "g (world):  " << g_.transpose() << std::endl;
+    // std::cout << "g (body): " << g_body.transpose() << std::endl;
+    // std::cout << "True Acc: " << acc_true.transpose() << std::endl;
+    // std::cout << "=========================================" << std::endl;
     // ===============================================
 
     output.MvM() = (M3D::Identity()-gSM(dOmega))*state.MvM()-dt*(meas_.template get<mtMeas::_acc>()-state.acb()+state.qWM().inverseRotate(g_)-noise.template get<mtNoise::_vel>()/sqrt(dt));

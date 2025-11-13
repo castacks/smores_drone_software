@@ -224,7 +224,7 @@ class FeatureSetManager{
       features_[newInd].idx_ = maxIdx_++;
       isValid_[newInd] = true;
     } else {
-      std::cout << "Feature Manager: maximal number of feature reached" << std::endl;
+      // std::cout << "Feature Manager: maximal number of feature reached" << std::endl;
     }
     return newInd;
   }
@@ -302,7 +302,7 @@ class FeatureSetManager{
     }
 
 
-    std::cout << "findcandidatescore: MultilevelPactes.size(): " << multilevelPatches.size() << ", maxScore: " << maxScore << '\n';
+    // std::cout << "findcandidatescore: MultilevelPactes.size(): " << multilevelPatches.size() << ", maxScore: " << maxScore << '\n';
     return maxScore;
   }
 

@@ -592,10 +592,15 @@ class MultilevelPatchAlignment {
    * @return true, if alignment converged!
    */
   bool align2DAdaptive(FeatureCoordinates& cOut, const ImagePyramid<nLevels>& pyr, const MultilevelPatch<nLevels,patch_size>& mp, const FeatureCoordinates& cInit,
-                       const int lowest_level = nLevels,const int highest_level = 0, const double convergencePixelRange = 1.0,  const double coverageRatio = 2.0, const int maxUniSample = 5){
+                       const int lowest_level = nLevels,const int highest_level = 0, const double convergencePixelRange = 1.0,  const double coverageRatio = 2.0, const int maxUniSample = 5, const bool debug = false){
     bestIntensityError_ = -1;
     cOut = cInit;
     const int n = std::min(std::max(static_cast<int>(ceil((cInit.sigma1_*coverageRatio)/(convergencePixelRange*pow(2.0,lowest_level+1))-0.5)),0),maxUniSample); // (n+0.5)*r*2^(l+1) > s*f
+    if(debug){
+        std::cout<<"    sigma1="<<cInit.sigma1_<<std::endl;
+        std::cout<<"    eigenVector1="<<cInit.eigenVector1_<<std::endl;
+        std::cout<<"    n="<<n<<std::endl;
+    }
     if(n==0){ // Catch simple case
       return align2D(cOut,pyr,mp,cInit,highest_level,lowest_level);
     }
