@@ -118,7 +118,7 @@ ImgUpdate
     minTimeBetweenPatchUpdate 1.0;								Minimum time between new multilevel patch extrection [s]
     fastDetectionThreshold0 5;									Fast corner detector treshold while adding new feature
     fastDetectionThreshold1 5;									Fast corner detector treshold while adding new feature
-    alignConvergencePixelRange 10;								Assumed convergence range for image alignment (gets scaled with the level) [pixels]
+    alignConvergencePixelRange 0.25;								Assumed convergence range for image alignment (gets scaled with the level) [pixels]
     alignCoverageRatio 1;										How many sigma of the uncertainty should be covered in the adaptive alignement
     alignMaxUniSample 3;										Maximal number of alignment seeds on one side -> total number of sample = 2n+1. Carefull can get very costly if diverging!
     patchRejectionTh0 -50.0;										If the average itensity error is larger than this the feauture is rejected [intensity], if smaller 0 the no check is performed
@@ -174,9 +174,9 @@ Prediction
         vel_0 4.0e-5; 4e-6;								X-covariance parameter of velocity prediction [m^2/s^3]
         vel_1 4.0e-5; 4e-6;								Y-covariance parameter of velocity prediction [m^2/s^3]
         vel_2 4.0e-5; 4e-6;								Z-covariance parameter of velocity prediction [m^2/s^3]
-        acb_0 1.0e-4;-8;								X-covariance parameter of accelerometer bias prediction [m^2/s^5]
-        acb_1 1.0e-4;-8;								Y-covariance parameter of accelerometer bias prediction [m^2/s^5]
-        acb_2 1.0e-4;-8;								Z-covariance parameter of accelerometer bias prediction [m^2/s^5]
+        acb_0 1.0e-8;-8;								X-covariance parameter of accelerometer bias prediction [m^2/s^5]
+        acb_1 1.0e-8;-8;								Y-covariance parameter of accelerometer bias prediction [m^2/s^5]
+        acb_2 1.0e-8;-8;								Z-covariance parameter of accelerometer bias prediction [m^2/s^5]
         gyb_0 3.8e-9; 3.8e-7;							X-covariance parameter of gyroscope bias prediction [rad^2/s^3]
         gyb_1 3.8e-9; 3.8e-7;							Y-covariance parameter of gyroscope bias prediction [rad^2/s^3]
         gyb_2 3.8e-9; 3.8e-7;							Z-covariance parameter of gyroscope bias prediction [rad^2/s^3]
