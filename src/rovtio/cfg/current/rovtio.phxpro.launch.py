@@ -31,6 +31,7 @@ def generate_launch_description():
                 {'maxDelayBeforeDropping': -0.2},
                 {'storeRuntimes': False},
                 {'maxTimeCamInactive': 4.0},
+                {"odom_scale": 1.5}
             ],
             # prefix='gdbserver localhost:3000'
         )

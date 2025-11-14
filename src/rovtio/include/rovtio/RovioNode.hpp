@@ -138,7 +138,7 @@ namespace rovtio {
     bool storeRuntimes = false;
     // Read from the launchfile // Should the runtimes of selected functions be stored to csv files
     std::fstream imageLatencyFileOut;
-
+    float odom_scale;
 
     struct FilterInitializationState {
       FilterInitializationState()
@@ -300,10 +300,12 @@ namespace rovtio {
                                   (FeatureOutputReadable::D_)
         ) {
       std::string filter_config;
-
+      float odom_scale = 2;
       this->declare_parameter("filter_config", filter_config);
       this->get_parameter("filter_config", filter_config);
-
+      this->declare_parameter("odom_scale", odom_scale);
+      std::cout<<"ODOM SCALE: "<<odom_scale<<std::endl;
+      this->odom_scale = odom_scale;
       mpFilter_ = std::make_shared<mtFilter>();
       mpFilter_->readFromInfo(filter_config);
 
@@ -713,7 +715,7 @@ namespace rovtio {
       // RCLCPP_INFO(this->get_logger(), "IMU CALLBACK");
       if (lastStampImu.nanoseconds() == rclcpp::Time(0, 0).nanoseconds()) {
         lastStampImu = rclcpp::Time(imu_msg->header.stamp);
-        RCLCPP_INFO(this->get_logger(), "Inside IMU CALLBACK");
+        // RCLCPP_INFO(this->get_logger(), "Inside IMU CALLBACK");
       } else {
         rclcpp::Time currentStamp(imu_msg->header.stamp);
         if (currentStamp.nanoseconds() < lastStampImu.nanoseconds()) {
@@ -799,7 +801,7 @@ namespace rovtio {
    */
     template<int i>
     void imgCallbackRoot(const std::shared_ptr<sensor_msgs::msg::Image const> &img) {
-      RCLCPP_INFO(this->get_logger(), "Image Handler Called: %d", i);
+      // RCLCPP_INFO(this->get_logger(), "Image Handler Called: %d", i);
       std::lock_guard<std::mutex> lock(imgLock);
       rclcpp::Time current_stamp(img->header.stamp, RCL_ROS_TIME);
 
@@ -829,7 +831,7 @@ namespace rovtio {
      *   @param camID - Camera ID.
      */
     void imgCallback(const std::shared_ptr<sensor_msgs::msg::Image const> &img, const int camID = 0) {
-      RCLCPP_INFO_STREAM(this->get_logger(), "Image Handler Called: ID: " << camID);
+      // RCLCPP_INFO_STREAM(this->get_logger(), "Image Handler Called: ID: " << camID);
       if (storeRuntimes) imageReceivedTimes[camID].push(std::chrono::steady_clock::now());
       // To leave out a camera if it stops providing images
       camActive_[camID] = true;
@@ -1008,7 +1010,7 @@ namespace rovtio {
         imgLock.lock();
         // RCLCPP_INFO(this->get_logger(), "locked");
         if (canAddImage(lastTimeReceived, camActive_)) {
-          RCLCPP_INFO(this->get_logger(), "canAddImage");
+          // RCLCPP_INFO(this->get_logger(), "canAddImage");
           int camIDOldestImg = getOldestCam(lastTimeReceived, camActive_);
           double oldestUnprocessedImageTimestamp;
           if (!std::get<0>(mpFilter_->updateTimelineTuple_).measMap_.empty()) {
@@ -1199,9 +1201,9 @@ namespace rovtio {
 
           // odometryMsg_.header.seq = msgSeq_;
           odometryMsg_.header.stamp = this->get_clock()->now();
-          odometryMsg_.pose.pose.position.x = imuOutput_.WrWB()(0);
-          odometryMsg_.pose.pose.position.y = imuOutput_.WrWB()(1);
-          odometryMsg_.pose.pose.position.z = imuOutput_.WrWB()(2);
+          odometryMsg_.pose.pose.position.x = imuOutput_.WrWB()(0) * odom_scale;
+          odometryMsg_.pose.pose.position.y = imuOutput_.WrWB()(1) * odom_scale;
+          odometryMsg_.pose.pose.position.z = imuOutput_.WrWB()(2)  * odom_scale;
           odometryMsg_.pose.pose.orientation.w = -imuOutput_.qBW().w();
           odometryMsg_.pose.pose.orientation.x = imuOutput_.qBW().x();
           odometryMsg_.pose.pose.orientation.y = imuOutput_.qBW().y();
@@ -1230,7 +1232,7 @@ namespace rovtio {
               odometryMsg_.twist.covariance[j + 6 * i] = imuOutputCov_(ind1, ind2);
             }
           }
-          RCLCPP_INFO(this->get_logger(), "PUBLISHING");
+          // RCLCPP_INFO(this->get_logger(), "PUBLISHING");
           pubOdometry_->publish(odometryMsg_);
           // }
 
