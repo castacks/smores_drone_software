@@ -10,3 +10,9 @@ install
 log
 no-push
 data
+*run*
+*.log
+*.json
+log.*
+loggg3.txt
+node*
