@@ -23,6 +23,7 @@ using std::placeholders::_2;
 class PCLPub : public rclcpp::Node {
     rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr points_publisher;
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr depth_publisher;
+    rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr disparity_publisher;
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr disparity_subscriber;
 
     // bool started = false;
@@ -74,9 +75,10 @@ public:
         cv::initUndistortRectifyMap(K2, D2, R2, P2, cv::Size(640, 512), CV_32FC1, rightMapX, rightMapY);
 
 
-        disparity_subscriber = this->create_subscription<sensor_msgs::msg::Image>("/disparity", 10, std::bind(&PCLPub::disparity_callback, this, _1));
+        disparity_subscriber = this->create_subscription<sensor_msgs::msg::Image>("/disparity_synced", 10, std::bind(&PCLPub::disparity_callback, this, _1));
         points_publisher = this->create_publisher<sensor_msgs::msg::PointCloud2>("foundation_points", 10);
         depth_publisher = this->create_publisher<sensor_msgs::msg::Image>("/depth_img", 10);
+        disparity_publisher = this->create_publisher<sensor_msgs::msg::Image>("/disparity_viz", 10);
     }
 
     void disparity_callback(const sensor_msgs::msg::Image::ConstSharedPtr &disparity) {
@@ -112,22 +114,21 @@ public:
             }
         }
 
-        cv::extractChannel(cv_disparity->image, depthMap, 2);
+        RCLCPP_INFO(this->get_logger(), "The disparity image has coi = %d and size = %dx%d", points3D.channels(), points3D.cols, points3D.rows);
+        cv::extractChannel(points3D, depthMap, 2);
         cv_bridge::CvImage depthImageBridge = cv_bridge::CvImage(disparity->header, "", depthMap);
 
-        // cv::Mat normalizedDisparity = disparity.clone();
-        // normalizedDisparity *= 255.0 / 155.0;
-        // cv::min(normalizedDisparity, 255.0, normalizedDisparity);
-        // cv::max(normalizedDisparity, 0.0, normalizedDisparity);
-        // normalizedDisparity.convertTo(normalizedDisparity, CV_8UC1);
-        // auto avg_time = (left->header.stamp.nanosec + right->header.stamp.nanosec) / 2;
-        // cv_bridge::CvImage disparity_message(left->header, "mono8", normalizedDisparity);
-        // sensor_msgs::msg::Image::SharedPtr disparityMessage = disparity_message.toImageMsg();
-        // disparityMessage->header.stamp = left->header.stamp;
-        // disparity = K1[0, 0] * 0.24262 / disp
+        cv::Mat normalizedDisparity = cv_disparity->image.clone();
+        normalizedDisparity *= 255.0 / 155.0;
+        cv::min(normalizedDisparity, 255.0, normalizedDisparity);
+        cv::max(normalizedDisparity, 0.0, normalizedDisparity);
+        normalizedDisparity.convertTo(normalizedDisparity, CV_8UC1);
+        cv_bridge::CvImage disparity_message(disparity->header, "mono8", normalizedDisparity);
+        sensor_msgs::msg::Image::SharedPtr disparityMessage = disparity_message.toImageMsg();
+        disparityMessage->header.stamp = disparity->header.stamp;
+        
         RCLCPP_INFO_STREAM(this->get_logger(), "Publishing");
-        // disparity_publisher->publish(*disparityMessage);
-
+        disparity_publisher->publish(*disparityMessage);
         points_publisher->publish(cloud_msg);
         depth_publisher->publish(*depthImageBridge.toImageMsg());
         // cv::imshow("Disparity", normalizedDisparity);

@@ -70,7 +70,7 @@ class FoundationStereoDepthNode : public rclcpp::Node {
 
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr disparity_publisher;
     rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr points_publisher;
-    
+
     bool started = false;
     rclcpp::Time last_processed_time;
     rclcpp::Duration min_dt = rclcpp::Duration::from_seconds(5);
@@ -191,19 +191,19 @@ public:
         RCLCPP_INFO(this->get_logger(), "Received Image Pair");
         rclcpp::Time left_time(left->header.stamp);
         rclcpp::Time right_time(left->header.stamp);
-        
-        rclcpp::Time minTime = left_time < right_time ? left_time : right_time;
-        
 
-        if(started && minTime - last_processed_time < min_dt) {
-            if(started){
-                rclcpp::Duration dt = minTime - last_processed_time;
-                RCLCPP_INFO_STREAM(this->get_logger(), "SKIPPING FRAME WITH DT "<<dt.seconds()<<endl);
-            }else{
-                RCLCPP_INFO_STREAM(this->get_logger(), "SKIPPING FRAME NOT STARTED"<<endl);
-            }
-            return;
-        }
+        rclcpp::Time minTime = left_time < right_time ? left_time : right_time;
+
+
+        // if(started && minTime - last_processed_time < min_dt) {
+        //     if(started){
+        //         rclcpp::Duration dt = minTime - last_processed_time;
+        //         RCLCPP_INFO_STREAM(this->get_logger(), "SKIPPING FRAME WITH DT "<<dt.seconds()<<endl);
+        //     }else{
+        //         RCLCPP_INFO_STREAM(this->get_logger(), "SKIPPING FRAME NOT STARTED"<<endl);
+        //     }
+        //     return;
+        // }
 
         started = true;
         last_processed_time = minTime;
@@ -223,9 +223,9 @@ public:
         rectifiedLeftF32 -= lp1Left;
         cv::threshold(rectifiedLeftF32, rectifiedLeftF32, lp99Left - lp1Left, lp99Left - lp1Left, cv::THRESH_TRUNC);
         rectifiedLeftF32 *= (255.0 / (lp99Left - lp1Left));
-        cv::Mat leftVisualImage;
-        rectifiedLeftF32.convertTo(leftVisualImage, CV_8U);
-        // cv::imshow("Rectified Left", leftVisualImage);
+        //cv::Mat leftVisualImage;
+        //rectifiedLeftF32.convertTo(leftVisualImage, CV_8U);
+        //cv::imshow("Rectified Left", leftVisualImage);
 
         cv::Mat rectifiedRight;
         cv::remap(cv_right->image, rectifiedRight, rightMapX, rightMapY, cv::INTER_LINEAR);
@@ -239,9 +239,9 @@ public:
         cv::threshold(rectifiedRightF32, rectifiedRightF32, lp99Right - lp1Right, lp99Right - lp1Right,
                       cv::THRESH_TRUNC);
         rectifiedRightF32 *= (255.0 / (lp99Right - lp1Right));
-        cv::Mat rightVisualImage;
-        rectifiedRightF32.convertTo(rightVisualImage, CV_8U);
-        // cv::imshow("Rectified Right", rightVisualImage);
+        //cv::Mat rightVisualImage;
+        //rectifiedRightF32.convertTo(rightVisualImage, CV_8U);
+        //cv::imshow("Rectified Right", rightVisualImage);
 
         imageToFloatNCHW(rectifiedLeftF32, left_buffer);
         imageToFloatNCHW(rectifiedRightF32, right_buffer);
@@ -250,6 +250,12 @@ public:
         context->executeV2(bindings.data());
         auto disparity = cv::Mat(512, 640, CV_32FC1);
         cudaMemcpy(disparity.data, disparity_buffer, 640 * 512 * 4, cudaMemcpyDeviceToHost);
+	cv_bridge::CvImage disparity_message(left->header, "32FC1", disparity);
+        sensor_msgs::msg::Image::SharedPtr disparityMessage = disparity_message.toImageMsg();
+        disparityMessage->header.stamp = left->header.stamp;
+	RCLCPP_INFO_STREAM(this->get_logger(), "Publishing");
+        disparity_publisher->publish(*disparityMessage);
+	/*
         cv::Mat points3D;
         cv::reprojectImageTo3D(disparity, points3D, Q, true); // handleMissingValues = true
 
@@ -291,8 +297,9 @@ public:
         RCLCPP_INFO_STREAM(this->get_logger(), "Publishing");
         disparity_publisher->publish(*disparityMessage);
         points_publisher->publish(cloud_msg);
-        // cv::imshow("Disparity", normalizedDisparity);
-        // cv::waitKey(0);
+        //cv::imshow("Disparity", normalizedDisparity);
+        //cv::waitKey(50);
+	*/
     }
 };
 

@@ -29,11 +29,15 @@ include_directories(${TENSORRT_INCLUDE_DIR})
 link_directories(${TENSORRT_LIBRARY_DIR})
 
 add_executable(depth-v2-node src/depth_v2_node.cpp)
+add_executable(nopreproc-depth-v2-node src/noPreproc_depth_v2.cpp)
 target_link_libraries(depth-v2-node nvinfer nvinfer_plugin ${OpenCV_LIBS} ${CUDA_LIBRARIES})
+target_link_libraries(nopreproc-depth-v2-node nvinfer nvinfer_plugin ${OpenCV_LIBS} ${CUDA_LIBRARIES})
 
 ament_target_dependencies(depth-v2-node rclcpp std_msgs message_filters cv_bridge yaml-cpp)
+ament_target_dependencies(nopreproc-depth-v2-node rclcpp std_msgs message_filters cv_bridge yaml-cpp)
 install(TARGETS
         depth-v2-node
+        nopreproc-depth-v2-node
         DESTINATION lib/${PROJECT_NAME})
 
 #if(BUILD_TESTING)
