@@ -81,9 +81,46 @@ public:
         disparity_publisher = this->create_publisher<sensor_msgs::msg::Image>("/disparity_viz", 10);
     }
 
+    bool check_disparity_validity(const cv::Mat &disparity_image) {
+        float valid_pixel_ratio_ = 0.5; // Require at least 50% valid pixels
+        float std_dev_threshold_ = 10; //range of disparity is 155
+        //Check for Failed Images (Validity)
+        // Create a mask of valid pixels (finite and typically > 0 or >= min_disparity)
+        cv::Mat mask, disparity = disparity_image.clone();
+        cv::patchNaNs(disparity, -1.0); // Replace NaNs with -1.0 to make comparison easier
+        cv::compare(disparity, 0.0, mask, cv::CMP_GT); // Keep pixels > 0.0
+
+        int valid_count = cv::countNonZero(mask);
+        double total_pixels = (double)(disparity.rows * disparity.cols);
+        double fill_ratio = valid_count / total_pixels;
+
+        if (fill_ratio < valid_pixel_ratio_) {
+        RCLCPP_WARN(this->get_logger(), "Dropping failed image: only %.2f%% valid pixels", fill_ratio * 100.0);
+        return false;
+        }
+
+        //Check for Flat Images (Variance)
+        cv::Scalar mean, stddev;
+        cv::meanStdDev(disparity, mean, stddev, mask);
+
+        if (stddev[0] < std_dev_threshold_) {
+        RCLCPP_WARN(this->get_logger(), "Dropping flat image: stddev %.2f < threshold %.2f", stddev[0], std_dev_threshold_);
+        return false;
+        }
+        return true;
+    }
     void disparity_callback(const sensor_msgs::msg::Image::ConstSharedPtr &disparity) {
         // cv::Mat cvDisparity;
         const cv_bridge::CvImagePtr cv_disparity = cv_bridge::toCvCopy(disparity, disparity->encoding);
+        if(check_disparity_validity(cv_disparity->image))
+        {
+            RCLCPP_INFO(this->get_logger(), "Disparity image is valid.");
+        }
+        else
+        {
+            RCLCPP_WARN(this->get_logger(), "Disparity image is invalid. Skipping processing.");
+            return;
+        }
         cv::Mat depthMap;
         cv::Mat points3D;
         depthMap.create(cv_disparity->image.rows, cv_disparity->image.cols, CV_32FC1);
@@ -126,7 +163,7 @@ public:
         cv_bridge::CvImage disparity_message(disparity->header, "mono8", normalizedDisparity);
         sensor_msgs::msg::Image::SharedPtr disparityMessage = disparity_message.toImageMsg();
         disparityMessage->header.stamp = disparity->header.stamp;
-        
+
         RCLCPP_INFO_STREAM(this->get_logger(), "Publishing");
         disparity_publisher->publish(*disparityMessage);
         points_publisher->publish(cloud_msg);
