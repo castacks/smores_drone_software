@@ -37,8 +37,6 @@ class MADPoseSolver(Node):
         # load intrinscis
         self.declare_parameter('left_cam_intrinsics_file', rclpy.Parameter.Type.STRING)
         self.declare_parameter('right_cam_intrinsics_file', rclpy.Parameter.Type.STRING)
-        # self.K0 = self.load_intrinsics("left")
-        # self.K1 = self.load_intrinsics("right")
         self.load_intrinsics_both()
 
         # Thresholds for reprojection and epipolar errors
@@ -62,7 +60,7 @@ class MADPoseSolver(Node):
         self.est_config = madpose.EstimatorConfig()
         self.est_config.min_depth_constraint = True
         self.est_config.use_shift = True
-        self.est_config.ceres_num_threads = 16
+        self.est_config.ceres_num_threads = 12
 
         self.subscription = self.create_subscription(
             TSMoGEOutput,
@@ -194,9 +192,6 @@ class MADPoseSolver(Node):
         #np.savez(f"data/test/npy/{self.i}_npy.npy", point_cloud0, colors0)
 
         # Save the point clouds in PLY format
-        # self.save_point_cloud(point_cloud0, colors0, f"data/test_pcl/{self.i}_point_cloud_0.ply")
-        # self.save_point_cloud(point_cloud1, colors1, f"data/test_pcl/{self.i}_point_cloud_1.ply")
-        # self.i += 1
 
         pc20 = self.create_pc2_msg("thermal_left/optical_frame", point_cloud0, colors0)
         pc21 = self.create_pc2_msg("thermal_right/optical_frame", point_cloud1, colors1)
@@ -272,6 +267,8 @@ class MADPoseSolver(Node):
 
         # Save the point cloud to a file
         o3d.io.write_point_cloud(filename, pcd)
+
+        self.get_logger().info(f"Saved PLY: {filename}")
 
         # o3d.visualization.draw_plotly([pcd])
 

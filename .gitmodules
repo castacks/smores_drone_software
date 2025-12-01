@@ -4,15 +4,9 @@
 [submodule "include/PoseLib"]
 	path = include/PoseLib
 	url = git@github.com:PoseLib/PoseLib.git
-[submodule "madpose"]
-	path = madpose
-	url = git@github.com:MarkYu98/madpose.git
 [submodule "include/madpose"]
 	path = include/madpose
 	url = git@github.com:MarkYu98/madpose.git
-[submodule "ros2_numpy"]
-	path = ros2_numpy
-	url = git@github.com:Box-Robotics/ros2_numpy.git
 [submodule "include/ros2_numpy"]
 	path = include/ros2_numpy
 	url = git@github.com:Box-Robotics/ros2_numpy.git
