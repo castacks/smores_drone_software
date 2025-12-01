@@ -1,35 +1,27 @@
+; Generated extrinsics configuration: rot_18_r090_p000_y180
+; Quaternion [w,x,y,z]: [0.000000, 0.000000, 0.707107, 0.707107]
+; This represents a rotation from IMU frame to Camera frame
+;
 ; You can partially override parameter set in this file by creating your own subset of parameter in a separate info-file and include it with:
 ; #include "/home/user/workspace/rovio/cfg/rovio_custom.info"
 Common
 {
 	doVECalibration true;		Should the camera-IMU extrinsics be calibrated online
 	depthType 0;				Type of depth parametrization (0: normal, 1: inverse depth, 2: log, 3: hyperbolic)
-	verbose false;				Is the verbose active
-	store_runtimes false;        Should runtimes of selected functions be stored to csv files (often in ~/.ros)
+	verbose true;				Is the verbose active
+	store_runtimes true;        Should runtimes of selected functions be stored to csv files (often in ~/.ros)
 }
 
 Camera0
 {
-  CalibrationFile  /external/smores_drone_software/src/rovtio/cfg/current/left-thermal-rovio.yaml;
-  qCM_x  1.0;                              X-entry of IMU to Camera quaterion (Hamilton)
-  qCM_y  0.0;                                Y-entry of IMU to Camera quaterion (Hamilton)
-  qCM_z  0.0;                              Z-entry of IMU to Camera quaterion (Hamilton)
-  qCM_w  0.0;                               W-entry of IMU to Camera quaterion (Hamilton)
-  MrMC_x  -0.12;                                  X-entry of IMU to Camera vector (expressed in IMU CF) [m]
-  MrMC_y  -0.04;                                  Y-entry of IMU to Camera vector (expressed in IMU CF) [m]
-  MrMC_z  -0.08;                                 Z-entry of IMU to Camera vector (expressed in IMU CF) [m]
-}
-
-Camera1
-{
-  CalibrationFile  /external/smores_drone_software/src/rovtio/cfg/current/right-thermal-rovio.yaml;
-  qCM_x  1.0;                              X-entry of IMU to Camera quaterion (Hamilton)
-  qCM_y  0.0;                                Y-entry of IMU to Camera quaterion (Hamilton)
-  qCM_z  0.0;                              Z-entry of IMU to Camera quaterion (Hamilton)
-  qCM_w  0.0;                               W-entry of IMU to Camera quaterion (Hamilton)
-  MrMC_x  0.12;                                  X-entry of IMU to Camera vector (expressed in IMU CF) [m]
-  MrMC_y  -0.04;                                  Y-entry of IMU to Camera vector (expressed in IMU CF) [m]
-  MrMC_z  -0.08;                                 Z-entry of IMU to Camera vector (expressed in IMU CF) [m]
+  CalibrationFile  ;
+  qCM_x  0.0000000000;                              X-entry of IMU to Camera quaterion (Hamilton)
+  qCM_y  0.7071067812;                                Y-entry of IMU to Camera quaterion (Hamilton)
+  qCM_z  0.7071067812;                              Z-entry of IMU to Camera quaterion (Hamilton)
+  qCM_w  0.0000000000;                               W-entry of IMU to Camera quaterion (Hamilton)
+  MrMC_x  0.0;                                  X-entry of IMU to Camera vector (expressed in IMU CF) [m]
+  MrMC_y  0.0;                                  Y-entry of IMU to Camera vector (expressed in IMU CF) [m]
+  MrMC_z  0.0;                                 Z-entry of IMU to Camera vector (expressed in IMU CF) [m]
 }
 
 Init
@@ -76,31 +68,31 @@ Init
 }
 ImgUpdate
 {
-	verbose false;
+	verbose true;
 	updateVecNormTermination 1.0e-4;
-	maxNumIteration 4;
+	maxNumIteration 100;
     doPatchWarping true;										Should the patches be warped
-    doFrameVisualisation false;									should the frames be visualized
+    doFrameVisualisation true;									Should the frames be visualized
     visualizePatches false;										Should the patches be visualized
     useDirectMethod false;										Should the EKF-innovation be based on direct intensity error (o.w. reprojection error)
-    startLevel 3;												Highest patch level which is being employed (must be smaller than the hardcoded template parameter)
-    endLevel 2;													Lowest patch level which is being employed
-    nDetectionBuckets 64;										Number of discretization buckets used during the candidates selection
-    MahalanobisTh 12.0;											Mahalanobis treshold for the update, 5.8858356
+    startLevel 1;												Highest patch level which is being employed (must be smaller than the hardcoded template parameter)
+    endLevel 0;													Lowest patch level which is being employed
+    nDetectionBuckets 100;										Number of discretization buckets used during the candidates selection
+    MahalanobisTh 20.0;											Mahalanobis treshold for the update, 5.8858356
     UpdateNoise0;
     {
-        pix 5;      											Covariance used for the reprojection error, 1/focal_length is roughly 1 pixel std [rad] (~1/f ~ 1/400^2 = 1/160000)
+        pix 2.4e-6;      											Covariance used for the reprojection error, 1/focal_length is roughly 1 pixel std [rad] (~1/f ~ 1/400^2 = 1/160000)
         int 1000;     										    Covariance used for the photometric error [intensity^2]
     }
     UpdateNoise1;
     {
-        pix 5;
+        pix 2.4e-6;
         int 1000;
     }
-    initCovFeature_0 0.1;										Covariance for the initial distance (Relative to initialization depth [m^2/m^2])
+    initCovFeature_0 0.001;										Covariance for the initial distance (Relative to initialization depth [m^2/m^2])
     initCovFeature_1 1.0e-5;		    						Covariance for the initial bearing vector, x-component [rad^2]
     initCovFeature_2 1.0e-5;		   							Covariance for the initial bearing vector, y-component [rad^2]
-    initDepth 0.5;												Initial value for the initial distance parameter
+    initDepth 3.0;												Initial value for the initial distance parameter
     startDetectionTh 0.8;										Threshold for detecting new features (min: 0, max: 1)
     scoreDetectionExponent 0.25;								Exponent used for weighting the distance between candidates
     penaltyDistance 75; 100;										Maximal distance which gets penalized during bucketing [pix]
@@ -119,10 +111,10 @@ ImgUpdate
     fastDetectionThreshold0 5;									Fast corner detector treshold while adding new feature
     fastDetectionThreshold1 5;									Fast corner detector treshold while adding new feature
     alignConvergencePixelRange 10;								Assumed convergence range for image alignment (gets scaled with the level) [pixels]
-    alignCoverageRatio 1;										How many sigma of the uncertainty should be covered in the adaptive alignement
+    alignCoverageRatio 2;										How many sigma of the uncertainty should be covered in the adaptive alignement
     alignMaxUniSample 3;										Maximal number of alignment seeds on one side -> total number of sample = 2n+1. Carefull can get very costly if diverging!
-    patchRejectionTh0 -50.0;										If the average itensity error is larger than this the feauture is rejected [intensity], if smaller 0 the no check is performed
-    patchRejectionTh1 -60.0;										If the average itensity error is larger than this the feauture is rejected [intensity], if smaller 0 the no check is performed
+    patchRejectionTh0 50.0;										If the average itensity error is larger than this the feauture is rejected [intensity], if smaller 0 the no check is performed
+    patchRejectionTh1 60.0;										If the average itensity error is larger than this the feauture is rejected [intensity], if smaller 0 the no check is performed
     alignmentHuberNormThreshold 10;								Intensity error threshold for Huber norm (enabled if > 0)
     alignmentGaussianWeightingSigma -1;							Width of Gaussian which is used for pixel error weighting (enabled if > 0)
     alignmentGradientExponent 0.0;								Exponent used for gradient based weighting of residuals
@@ -132,7 +124,7 @@ ImgUpdate
     maxUncertaintyToDepthRatioForDepthInitialization 0.3;		If set to 0.0 the depth is initialized with the standard value provided above, otherwise ROVIO attempts to figure out a median depth in each frame
     useCrossCameraMeasurements false;							Should cross measurements between frame be used. Might be turned of in calibration phase.
     doStereoInitialization false;								Should a stereo match be used for feature initialization.
-    noiseGainForOffCamera 0.0;									Factor added on update noise if not main camera
+    noiseGainForOffCamera 1.0;									Factor added on update noise if not main camera
     discriminativeSamplingDistance 0.02;						Sampling distance for checking discriminativity of patch (if <= 0.0 no check is performed).
     discriminativeSamplingGain 1.1;								Gain for threshold above which the samples must lie (if <= 1.0 the patchRejectionTh is used).
     maxAllowedFeatureDistance 25.0;                             Max allowed estimated feature distance after performing update, remove features with very far away estimated depth and clustered features during backward motion.
@@ -147,8 +139,8 @@ ImgUpdate
     MotionDetection
     {
     	isEnabled 1;											Is the motion detection enabled
-	    rateOfMovingFeaturesTh 0.75;								Amount of feature with motion for overall motion detection
-	    pixelCoordinateMotionTh 7.0;							Threshold for motion detection for patched [pixels]
+	    rateOfMovingFeaturesTh 0.5;								Amount of feature with motion for overall motion detection
+	    pixelCoordinateMotionTh 3.0;							Threshold for motion detection for patched [pixels]
 	    minFeatureCountForNoMotionDetection 1;					Min feature count in frame for motion detection
 	}
     ZeroVelocityUpdate
@@ -159,8 +151,8 @@ ImgUpdate
             vel_1 0.01;											Y-Covariance of zero velocity update [m^2/s^2]
             vel_2 0.01;											Z-Covariance of zero velocity update [m^2/s^2]
         }
-        MahalanobisTh0 12.0;						Mahalanobid distance for zero velocity updates
-        minNoMotionTime 0.25;									Min duration of no-motion
+        MahalanobisTh0 7.689997599999999;						Mahalanobid distance for zero velocity updates
+        minNoMotionTime 0.5;									Min duration of no-motion
         isEnabled 1;											Should zero velocity update be applied, only works if MotionDetection.isEnabled is true
     }
 }
@@ -174,9 +166,9 @@ Prediction
         vel_0 4.0e-5; 4e-6;								X-covariance parameter of velocity prediction [m^2/s^3]
         vel_1 4.0e-5; 4e-6;								Y-covariance parameter of velocity prediction [m^2/s^3]
         vel_2 4.0e-5; 4e-6;								Z-covariance parameter of velocity prediction [m^2/s^3]
-        acb_0 1.0e-4;-8;								X-covariance parameter of accelerometer bias prediction [m^2/s^5]
-        acb_1 1.0e-4;-8;								Y-covariance parameter of accelerometer bias prediction [m^2/s^5]
-        acb_2 1.0e-4;-8;								Z-covariance parameter of accelerometer bias prediction [m^2/s^5]
+        acb_0 1.0e-8;								X-covariance parameter of accelerometer bias prediction [m^2/s^5]
+        acb_1 1.0e-8;								Y-covariance parameter of accelerometer bias prediction [m^2/s^5]
+        acb_2 1.0e-8;								Z-covariance parameter of accelerometer bias prediction [m^2/s^5]
         gyb_0 3.8e-9; 3.8e-7;							X-covariance parameter of gyroscope bias prediction [rad^2/s^3]
         gyb_1 3.8e-9; 3.8e-7;							Y-covariance parameter of gyroscope bias prediction [rad^2/s^3]
         gyb_2 3.8e-9; 3.8e-7;							Z-covariance parameter of gyroscope bias prediction [rad^2/s^3]
@@ -220,7 +212,7 @@ PoseUpdate
     pre_cov_MrMV 1.0e-4;							Covariance parameter of pose between inertial frames, linear part [m^2/s]
     pre_cov_qVM 1.0e-4;							Covariance parameter of pose between inertial frames, rotational part [rad^2/s]
     MahalanobisTh0 12.6511204;					Mahalonobis distance treshold of pose measurement
-	doVisualization true;						Should the measured poses be vizualized
+	doVisualization false;						Should the measured poses be vizualized
 	enablePosition true;						Should the linear part be used during the update
 	enableAttitude true;						Should the rotation part be used during the update (e.g. set to fals eif feeding GPS-measurement)
 	noFeedbackToRovio true;						By default the pose update is only used for aligning coordinate frame. Set to false if ROVIO should benefit frome the posed measurements.

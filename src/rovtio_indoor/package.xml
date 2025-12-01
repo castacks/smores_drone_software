@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>rovtio_indoor</name>
+  <version>0.1.0</version>
+  <description>
+
+	rovtio for indoor environments
+
+  </description>
+  <url></url>
+  <author>bloeschm</author>
+  <author>Henrik D. Flemmen</author>
+  <maintainer email="henrikdf@stud.ntnu.no">Henrik D. Flemmen</maintainer>
+  <license>BSD License</license>
+  <buildtool_depend>ament_cmake_ros</buildtool_depend>
+  <buildtool_depend>rosidl_default_generators</buildtool_depend>
+
+
+  <depend>cmake_modules</depend>
+  <depend>lightweight_filtering</depend>
+  <depend>kindr</depend>
+  <depend>roscpp</depend>
+  <depend>roslib</depend>
+  <depend>cv_bridge</depend>
+  <depend>message_generation</depend>
+  <depend>message_runtime</depend>
+  <depend>geometry_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>tf</depend>
+  <depend>rosbag</depend>
+
+  <exec_depend>rosidl_default_runtime</exec_depend>
+  <member_of_group>rosidl_interface_packages</member_of_group>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

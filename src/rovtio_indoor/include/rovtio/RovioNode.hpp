@@ -138,7 +138,7 @@ namespace rovtio {
     bool storeRuntimes = false;
     // Read from the launchfile // Should the runtimes of selected functions be stored to csv files
     std::fstream imageLatencyFileOut;
-
+    float odom_scale;
 
     struct FilterInitializationState {
       FilterInitializationState()
@@ -300,10 +300,12 @@ namespace rovtio {
                                   (FeatureOutputReadable::D_)
         ) {
       std::string filter_config;
-
+      float odom_scale = 2;
       this->declare_parameter("filter_config", filter_config);
       this->get_parameter("filter_config", filter_config);
-
+      this->declare_parameter("odom_scale", odom_scale);
+      std::cout<<"ODOM SCALE: "<<odom_scale<<std::endl;
+      this->odom_scale = odom_scale;
       mpFilter_ = std::make_shared<mtFilter>();
       mpFilter_->readFromInfo(filter_config);
 
@@ -713,7 +715,7 @@ namespace rovtio {
       // RCLCPP_INFO(this->get_logger(), "IMU CALLBACK");
       if (lastStampImu.nanoseconds() == rclcpp::Time(0, 0).nanoseconds()) {
         lastStampImu = rclcpp::Time(imu_msg->header.stamp);
-        RCLCPP_INFO(this->get_logger(), "Inside IMU CALLBACK");
+        // RCLCPP_INFO(this->get_logger(), "Inside IMU CALLBACK");
       } else {
         rclcpp::Time currentStamp(imu_msg->header.stamp);
         if (currentStamp.nanoseconds() < lastStampImu.nanoseconds()) {
@@ -799,7 +801,7 @@ namespace rovtio {
    */
     template<int i>
     void imgCallbackRoot(const std::shared_ptr<sensor_msgs::msg::Image const> &img) {
-      RCLCPP_INFO(this->get_logger(), "Image Handler Called: %d", i);
+      // RCLCPP_INFO(this->get_logger(), "Image Handler Called: %d", i);
       std::lock_guard<std::mutex> lock(imgLock);
       rclcpp::Time current_stamp(img->header.stamp, RCL_ROS_TIME);
 
@@ -829,7 +831,7 @@ namespace rovtio {
      *   @param camID - Camera ID.
      */
     void imgCallback(const std::shared_ptr<sensor_msgs::msg::Image const> &img, const int camID = 0) {
-      RCLCPP_INFO_STREAM(this->get_logger(), "Image Handler Called: ID: " << camID);
+      // RCLCPP_INFO_STREAM(this->get_logger(), "Image Handler Called: ID: " << camID);
       if (storeRuntimes) imageReceivedTimes[camID].push(std::chrono::steady_clock::now());
       // To leave out a camera if it stops providing images
       camActive_[camID] = true;
@@ -1008,7 +1010,7 @@ namespace rovtio {
         imgLock.lock();
         // RCLCPP_INFO(this->get_logger(), "locked");
         if (canAddImage(lastTimeReceived, camActive_)) {
-          RCLCPP_INFO(this->get_logger(), "canAddImage");
+          // RCLCPP_INFO(this->get_logger(), "canAddImage");
           int camIDOldestImg = getOldestCam(lastTimeReceived, camActive_);
           double oldestUnprocessedImageTimestamp;
           if (!std::get<0>(mpFilter_->updateTimelineTuple_).measMap_.empty()) {
@@ -1136,7 +1138,7 @@ namespace rovtio {
             geometry_msgs::msg::TransformStamped tf_transform_WI;
             tf_transform_WI.header.frame_id = map_frame_;
             tf_transform_WI.child_frame_id = world_frame_;
-            tf_transform_WI.header.stamp = rclcpp::Time(static_cast<int64_t>(mpFilter_->safe_.t_ * 1e9));
+            tf_transform_WI.header.stamp = rclcpp::Time(mpFilter_->safe_.t_);
             tf_transform_WI.transform.translation.x = IrIW(0);
             tf_transform_WI.transform.translation.y = IrIW(1);
             tf_transform_WI.transform.translation.z = IrIW(2);
@@ -1153,7 +1155,7 @@ namespace rovtio {
           geometry_msgs::msg::TransformStamped tf_transform_MW;
 
           // Set the header information
-          tf_transform_MW.header.stamp = rclcpp::Time(static_cast<int64_t>(mpFilter_->safe_.t_ * 1e9));
+          tf_transform_MW.header.stamp = this->get_clock()->now();
           tf_transform_MW.header.frame_id = world_frame_;
           tf_transform_MW.child_frame_id = imu_frame_;
 
@@ -1166,7 +1168,7 @@ namespace rovtio {
           tf_transform_MW.transform.rotation.x = imuOutput_.qBW().x();
           tf_transform_MW.transform.rotation.y = imuOutput_.qBW().y();
           tf_transform_MW.transform.rotation.z = imuOutput_.qBW().z();
-          tf_transform_MW.transform.rotation.w = -imuOutput_.qBW().w();
+          tf_transform_MW.transform.rotation.w = imuOutput_.qBW().w();
 
           tb_.sendTransform(tf_transform_MW);
 
@@ -1175,7 +1177,7 @@ namespace rovtio {
             geometry_msgs::msg::TransformStamped tf_transform_CM;
 
             // Set the header information
-            tf_transform_CM.header.stamp = rclcpp::Time(static_cast<int64_t>(mpFilter_->safe_.t_ * 1e9)); 
+            tf_transform_CM.header.stamp = this->get_clock()->now();
             tf_transform_CM.header.frame_id = imu_frame_;
             tf_transform_CM.child_frame_id = camera_frame_ + std::to_string(camID);
 
@@ -1198,10 +1200,10 @@ namespace rovtio {
           imuOutputCT_.transformCovMat(state, cov, imuOutputCov_);
 
           // odometryMsg_.header.seq = msgSeq_;
-          odometryMsg_.header.stamp = rclcpp::Time(static_cast<int64_t>(mpFilter_->safe_.t_ * 1e9));
-          odometryMsg_.pose.pose.position.x = imuOutput_.WrWB()(0);
-          odometryMsg_.pose.pose.position.y = imuOutput_.WrWB()(1);
-          odometryMsg_.pose.pose.position.z = imuOutput_.WrWB()(2);
+          odometryMsg_.header.stamp = this->get_clock()->now();
+          odometryMsg_.pose.pose.position.x = imuOutput_.WrWB()(0) * odom_scale;
+          odometryMsg_.pose.pose.position.y = imuOutput_.WrWB()(1) * odom_scale;
+          odometryMsg_.pose.pose.position.z = imuOutput_.WrWB()(2)  * odom_scale;
           odometryMsg_.pose.pose.orientation.w = -imuOutput_.qBW().w();
           odometryMsg_.pose.pose.orientation.x = imuOutput_.qBW().x();
           odometryMsg_.pose.pose.orientation.y = imuOutput_.qBW().y();
@@ -1230,7 +1232,7 @@ namespace rovtio {
               odometryMsg_.twist.covariance[j + 6 * i] = imuOutputCov_(ind1, ind2);
             }
           }
-          RCLCPP_INFO(this->get_logger(), "PUBLISHING");
+          // RCLCPP_INFO(this->get_logger(), "PUBLISHING");
           pubOdometry_->publish(odometryMsg_);
           // }
 
@@ -1239,7 +1241,7 @@ namespace rovtio {
             imuOutputCT_.transformCovMat(state, cov, imuOutputCov_);
 
             // estimatedPoseWithCovarianceStampedMsg_.header.seq = msgSeq_;
-            estimatedPoseWithCovarianceStampedMsg_.header.stamp = rclcpp::Time(static_cast<int64_t>(mpFilter_->safe_.t_ * 1e9));
+            estimatedPoseWithCovarianceStampedMsg_.header.stamp = rclcpp::Time(mpFilter_->safe_.t_);
             estimatedPoseWithCovarianceStampedMsg_.pose.pose.position.x = imuOutput_.WrWB()(0);
             estimatedPoseWithCovarianceStampedMsg_.pose.pose.position.y = imuOutput_.WrWB()(1);
             estimatedPoseWithCovarianceStampedMsg_.pose.pose.position.z = imuOutput_.WrWB()(2);
@@ -1264,7 +1266,7 @@ namespace rovtio {
           // Send IMU pose message.
           if (pubTransform_->get_subscription_count() > 0 || forceTransformPublishing_) {
             // transformMsg_.header.seq = msgSeq_;
-            transformMsg_.header.stamp = rclcpp::Time(static_cast<int64_t>(mpFilter_->safe_.t_ * 1e9));
+            transformMsg_.header.stamp = rclcpp::Time(mpFilter_->safe_.t_);
             transformMsg_.transform.translation.x = imuOutput_.WrWB()(0);
             transformMsg_.transform.translation.y = imuOutput_.WrWB()(1);
             transformMsg_.transform.translation.z = imuOutput_.WrWB()(2);
@@ -1280,7 +1282,7 @@ namespace rovtio {
               Eigen::Vector3d IrIW = state.poseLin(mpPoseUpdate_->inertialPoseIndex_);
               QPD qWI = state.poseRot(mpPoseUpdate_->inertialPoseIndex_);
               // T_J_W_Msg_.header.seq = msgSeq_;
-              T_J_W_Msg_.header.stamp = rclcpp::Time(static_cast<int64_t>(mpFilter_->safe_.t_ * 1e9));
+              T_J_W_Msg_.header.stamp = rclcpp::Time(mpFilter_->safe_.t_);
               T_J_W_Msg_.transform.translation.x = IrIW(0);
               T_J_W_Msg_.transform.translation.y = IrIW(1);
               T_J_W_Msg_.transform.translation.z = IrIW(2);
@@ -1296,7 +1298,7 @@ namespace rovtio {
           for (int camID = 0; camID < mtState::nCam_; camID++) {
             if (pubExtrinsics_[camID]->get_subscription_count() > 0 || forceExtrinsicsPublishing_) {
               // extrinsicsMsg_[camID].header.seq = msgSeq_;
-              extrinsicsMsg_[camID].header.stamp = rclcpp::Time(static_cast<int64_t>(mpFilter_->safe_.t_ * 1e9));
+              extrinsicsMsg_[camID].header.stamp = rclcpp::Time(mpFilter_->safe_.t_);
               extrinsicsMsg_[camID].pose.pose.position.x = state.MrMC(camID)(0);
               extrinsicsMsg_[camID].pose.pose.position.y = state.MrMC(camID)(1);
               extrinsicsMsg_[camID].pose.pose.position.z = state.MrMC(camID)(2);
@@ -1320,7 +1322,7 @@ namespace rovtio {
           // Publish IMU biases
           if (pubImuBias_->get_subscription_count() > 0 || forceImuBiasPublishing_) {
             // imuBiasMsg_.header.seq = msgSeq_;
-            imuBiasMsg_.header.stamp = rclcpp::Time(static_cast<int64_t>(mpFilter_->safe_.t_ * 1e9));
+            imuBiasMsg_.header.stamp = rclcpp::Time(mpFilter_->safe_.t_);
             imuBiasMsg_.angular_velocity.x = state.gyb()(0);
             imuBiasMsg_.angular_velocity.y = state.gyb()(1);
             imuBiasMsg_.angular_velocity.z = state.gyb()(2);
@@ -1347,9 +1349,9 @@ namespace rovtio {
               ||
               forceMarkersPublishing_) {
             // pclMsg_.header.seq = msgSeq_;
-            pclMsg_.header.stamp = rclcpp::Time(static_cast<int64_t>(mpFilter_->safe_.t_ * 1e9));
+            pclMsg_.header.stamp = rclcpp::Time(mpFilter_->safe_.t_);
             // markerMsg_.header.seq = msgSeq_;
-            markerMsg_.header.stamp = rclcpp::Time(static_cast<int64_t>(mpFilter_->safe_.t_ * 1e9));
+            markerMsg_.header.stamp = rclcpp::Time(mpFilter_->safe_.t_);
             markerMsg_.points.clear();
             float badPoint = std::numeric_limits<float>::quiet_NaN(); // Invalid point.
             int offset = 0;
@@ -1460,7 +1462,7 @@ namespace rovtio {
           }
           if (pubPatch_->get_subscription_count() > 0 || forcePatchPublishing_) {
             // patchMsg_.header.seq = msgSeq_;
-            patchMsg_.header.stamp = rclcpp::Time(static_cast<int64_t>(mpFilter_->safe_.t_ * 1e9));
+            patchMsg_.header.stamp = rclcpp::Time(mpFilter_->safe_.t_);
             int offset = 0;
             for (unsigned int i = 0; i < mtState::nMax_; i++, offset += patchMsg_.point_step) {
               if (filterState.fsm_.isValid_[i]) {

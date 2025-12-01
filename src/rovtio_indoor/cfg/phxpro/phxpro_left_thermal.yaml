@@ -1,0 +1,37 @@
+#image_width: 640
+#image_height: 512
+#camera_name: tau2
+#camera_matrix:
+#  rows: 3
+#  cols: 3
+#  data: [440.381678762, 0.0, 328.082910449, 0.0, 440.34105427, 257.335140534, 0.0, 0.0, 1.0]
+#distortion_model: equidistant
+#distortion_coefficients:
+#  rows: 1
+#  cols: 4
+#  data: [-0.125172452973, -0.0158508045529, 0.00552041769855, 0.00188160221577]
+image_width: 640
+image_height: 512
+camera_name: boson
+camera_matrix:
+  rows: 3
+  cols: 3
+  data: [404.9842534577856, 0.0, 313.1521147858522, 0.0, 405.0992911907136, 237.73982476898445, 0.0, 0.0, 1.0]
+distortion_model: plumb_bob
+distortion_coefficients:
+  rows: 1
+  cols: 4
+  data: [-0.3418843277284295, 0.09554844659447544, 0.0006766728551819399, 0.00013250437150091342, 0.0]
+
+#image_width: 640
+#image_height: 512
+#distortion_parameters:
+#  k1: -0.3570177436783058
+#  k2: 0.12568663855520218
+#  p1: 0.0035096744648418607
+#  p2: 0.00059
+#projection_parameters:
+#  fx: 391.5162840730665
+#  fy: 392.96131720987114
+#  cx: 315.6618565999557
+#  cy: 252.91158584290113

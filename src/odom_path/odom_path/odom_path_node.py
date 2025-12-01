@@ -17,7 +17,7 @@ class OdomPathNode(Node):
         # Declare parameters for remappable topics
         self.declare_parameter('odom_topic', '/mavros/odometry/out')
         self.declare_parameter('path_topic', 'odom_path')
-        self.declare_parameter('max_path_length', 100000)
+        self.declare_parameter('max_path_length', 1000)
 
         # Get parameters
         odom_topic = self.get_parameter('odom_topic').value
@@ -42,6 +42,7 @@ class OdomPathNode(Node):
             10
         )
 
+        self.odom_count=0
         self.get_logger().info(f'Subscribed to: {odom_topic}')
         self.get_logger().info(f'Publishing path to: {path_topic}')
         self.get_logger().info(f'Max path length: {self.max_path_length}')
@@ -50,14 +51,16 @@ class OdomPathNode(Node):
         """
         Callback for odometry messages. Appends pose to path and publishes.
         """
+        self.odom_count+=1
         # Create PoseStamped from odometry
         pose_stamped = PoseStamped()
         pose_stamped.header = msg.header
         pose_stamped.pose = msg.pose.pose
 
         # Update path
-        self.path.header = msg.header
-        self.path.poses.append(pose_stamped)
+        if self.odom_count%10==0:
+            self.path.header = msg.header
+            self.path.poses.append(pose_stamped)
 
         # Limit path length
         if len(self.path.poses) > self.max_path_length:
