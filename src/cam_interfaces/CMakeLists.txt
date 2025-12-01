@@ -15,7 +15,7 @@ find_package(sensor_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "msg/MoGEOutput.msg"
+  "msg/TSMoGEOutput.msg"
   DEPENDENCIES sensor_msgs
  )
 ament_export_dependencies(rosidl_default_runtime)

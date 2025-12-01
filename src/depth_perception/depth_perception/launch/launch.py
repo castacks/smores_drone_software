@@ -1,6 +1,9 @@
 import os
 ws_dir = os.getenv("ROS_WS_DIR", "/external/smores_drone_software")
 
+import os
+ws_dir = os.getenv("ROS_WS_DIR", "/external/smores_drone_software")
+
 from launch import LaunchDescription
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
@@ -16,32 +19,15 @@ def generate_launch_description():
         ])
     )
 
-    mogeinf_left = Node(
+    mogeinf = Node(
         package="depth_perception",  
         executable="moge_infer_depth",  
-        namespace='thermal_left',
-        remappings=[
-            ('thermal/image', 'preprocd_image'),
-            ('thermal/moge/depthmap', 'moge/depthmap'),
-            ('thermal/moge', 'moge')
-        ],
         output="screen",
-    )
-    
-    mogeinf_right = Node(
-        package="depth_perception",  
-        executable="moge_infer_depth",  
-        namespace='thermal_right',
-        remappings=[
-            ('thermal/image', 'preprocd_image'),
-            ('thermal/moge/depthmap', 'moge/depthmap'),
-            ('thermal/moge', 'moge')
-        ],
     )
 
     madpose_solver = Node(
         package="depth_perception", 
-        executable="madpose",  
+        executable="madpose",
         parameters=[
                     {
                         "left_cam_intrinsics_file": f"{ws_dir}/calibrations/ORDv1_Smores_Feb2025/left_thermal.yaml",
@@ -64,13 +50,14 @@ def generate_launch_description():
             "address": "0.0.0.0",
             }.items(),
     )
+
     return LaunchDescription(
         [
-            #preproc_launch,
-            mogeinf_left,
-            mogeinf_right,
+            preproc_launch,
+            mogeinf,
             madpose_solver,
             #pcl_sub_test,
+            #foxglove_launch,
             #foxglove_launch,
         ]
     )

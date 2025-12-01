@@ -1,0 +1,21 @@
+###### Camera Calibration File For RealSense Color Camera ######
+image_width: 1280
+image_height: 720
+camera_name: realsense_color
+camera_matrix:
+  rows: 3
+  cols: 3
+  data: [643.7258911132812, 0.0, 638.2968139648438, 0.0, 642.5801391601562, 372.985595703125, 0.0, 0.0, 1.0]
+distortion_model: plumb_bob
+distortion_coefficients:
+  rows: 1
+  cols: 5
+  data: [-0.05536200478672981, 0.06605497002601624, -0.00041774517740122974, 0.0009725548443384469, -0.021654918789863586]
+
+###### Original Calibration Data ######
+## From realsense-color.yaml:
+# intrinsics: [fx, fy, cx, cy] = [643.7258911132812, 642.5801391601562, 638.2968139648438, 372.985595703125]
+# distortion_coeffs: [-0.05536200478672981, 0.06605497002601624, -0.00041774517740122974, 0.0009725548443384469, -0.021654918789863586]
+# distortion_model: radtan
+# resolution: [1280, 720]
+# rostopic: /camera/camera/color/image_raw

@@ -23,11 +23,9 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            # 'thermal_pub_sub = depth_perception.publish_thermals:main', # executable_name = package_name.file_name:entry_function
-            'stereobm = depth_perception.sync_stereo_pair:main',
+            # executable_name = package_name.file_name:entry_function
             'moge_infer_depth = depth_perception.moge_inference_mono:main',
             'madpose = depth_perception.madpose_metric_solver:main',
-            # 'pclsub = depth_perception.pcl_sub:main'
         ],
     },
 )

@@ -1,4 +1,6 @@
 .vscode/
+.fleet
+.cache
 **/__pycache__
 .idea
 build
@@ -8,7 +10,10 @@ install
 log
 no-push
 data
-**/cmake-build-*/**
+*run*
+*.log
+*.json
+log.*
+loggg3.txt
+node*
 
-*.npy
-*.pt

@@ -16,8 +16,7 @@ from cv_bridge import CvBridge
 from rclpy.node import Node
 from std_msgs.msg import Header
 from sensor_msgs.msg import Image, PointCloud2, PointField
-from cam_interfaces.msg import MoGEOutput
-import message_filters
+from cam_interfaces.msg import TSMoGEOutput
 import ros2_numpy
 
 # import helper method to visualize depth
@@ -25,7 +24,7 @@ from moge.utils.vis import colorize_depth
 
 # madpose imports
 import madpose
-from madpose.utils import bougnoux_numpy, compute_pose_error, get_depths
+from madpose.utils import bougnoux_numpy, get_depths
 import open3d as o3d
 
 class MADPoseSolver(Node):
@@ -63,22 +62,22 @@ class MADPoseSolver(Node):
         self.est_config.use_shift = True
         self.est_config.ceres_num_threads = 12
 
-        # get synced msg
-        left_sub = message_filters.Subscriber(self, MoGEOutput, "thermal_left/moge")
-        right_sub = message_filters.Subscriber(self, MoGEOutput, "thermal_right/moge")
+        self.subscription = self.create_subscription(
+            TSMoGEOutput,
+            "thermal/moge",
+            self.solve_metric,
+            1,
+        )
 
-        ats = message_filters.ApproximateTimeSynchronizer([left_sub, right_sub], queue_size=10, slop=0.1)
-        ats.registerCallback(self.solve_metric)
-
-        self.metricdepthmap0_publisher = self.create_publisher(Image, "thermal/madpose/depthmap_left", 10)
-        self.metricdepthmap1_publisher = self.create_publisher(Image, "thermal/madpose/depthmap_right", 10)
-        self.ptcl0_publisher = self.create_publisher(PointCloud2, "thermal/madpose/pointcloud_left", 10)
-        self.ptcl1_publisher = self.create_publisher(PointCloud2, "thermal/madpose/pointcloud_right", 10)
+        self.metricdepthmap0_publisher = self.create_publisher(Image, "thermal_left/madpose/depthmap", 10)
+        self.metricdepthmap1_publisher = self.create_publisher(Image, "thermal_right/madpose/depthmap", 10)
+        self.ptcl0_publisher = self.create_publisher(PointCloud2, "thermal_left/madpose/pointcloud", 10)
+        self.ptcl1_publisher = self.create_publisher(PointCloud2, "thermal_right/madpose/pointcloud", 10)
 
         self.i = 0
 
-    def test_synced_pair(self, msg_left, msg_right):
-        self.get_logger().info(f'{self.i}: Received synchronized messages left ={msg_left.header.stamp}, right={msg_right.header.stamp}')
+    def test_synced_pair(self, left_image, right_image, left_depth, right_depth):
+        self.get_logger().info(f'{self.i}: Received synchronized left img of shape ={left_image.shape}, depth of ={left_depth.shape}')
         self.i += 1
 
     def load_intrinsics_both(self):
@@ -86,7 +85,7 @@ class MADPoseSolver(Node):
         self.K1 = self._load_intrinsics("right")
 
     def _load_intrinsics(self, cam):
-        intrinsics_file = self.get_parameter(f'{cam}_cam_intrinsics_file').value
+        intrinsics_file = self.get_parameter(f'{cam}_cam_intrinsics_file').get_parameter_value().string_value
         with open(intrinsics_file, 'r') as file:
             cal = yaml.safe_load(file)
 
@@ -126,18 +125,20 @@ class MADPoseSolver(Node):
 
         return mkpts0, mkpts1
 
+    def solve_metric(self, msg):
 
-    def solve_metric(self, msg_left, msg_right):
         # Read the image pair
-        image0 = self.bridge.imgmsg_to_cv2(msg_left.preproc, msg_left.preproc.encoding)
-        image1 = self.bridge.imgmsg_to_cv2(msg_right.preproc, msg_right.preproc.encoding)
+        image0 = self.bridge.imgmsg_to_cv2(msg.left_image, msg.left_image.encoding)
+        image1 = self.bridge.imgmsg_to_cv2(msg.right_image, msg.right_image.encoding)
+
+        self.test_synced_pair(image0, image1, np.array(msg.left_depth), np.array(msg.right_depth))
 
         # Run keypoint detector (SIFT)
         mkpts0, mkpts1 = self.get_matched_keypoints(image0, image1)
 
         # read depth map
-        depth_map0 = np.array(msg_left.depth).reshape((msg_left.preproc.height, msg_left.preproc.width))
-        depth_map1 = np.array(msg_right.depth).reshape((msg_right.preproc.height, msg_right.preproc.width))
+        depth_map0 = np.array(msg.left_depth).reshape((msg.left_image.height, msg.left_image.width))
+        depth_map1 = np.array(msg.right_depth).reshape((msg.right_image.height, msg.right_image.width))
 
         # Query the depth priors of the keypoints
         depth0 = get_depths(image0, depth_map0, mkpts0)
@@ -191,9 +192,6 @@ class MADPoseSolver(Node):
         #np.savez(f"data/test/npy/{self.i}_npy.npy", point_cloud0, colors0)
 
         # Save the point clouds in PLY format
-        #self.save_point_cloud(point_cloud0, colors0, f"data/test/pcltx/{self.i}_point_cloud_0.ply")
-        #self.save_point_cloud(point_cloud1, colors1, f"data/test/pcltx/{self.i}_point_cloud_1.ply")
-        self.i += 1
 
         pc20 = self.create_pc2_msg("thermal_left/optical_frame", point_cloud0, colors0)
         pc21 = self.create_pc2_msg("thermal_right/optical_frame", point_cloud1, colors1)
@@ -231,7 +229,7 @@ class MADPoseSolver(Node):
         points = points.reshape(-1, 3)
         colors = colors.reshape(-1, 3)
 
-        merged_colors = self.merge_rgb(colors)
+        merged_colors = self._merge_rgb(colors)
 
         dtype=[
             ('x', np.float32),
@@ -249,7 +247,7 @@ class MADPoseSolver(Node):
         msg = ros2_numpy.msgify(PointCloud2, data, frame_id=frame_id)
         return msg
 
-    def merge_rgb(self, colors: np.ndarray):
+    def _merge_rgb(self, colors: np.ndarray):
         r = np.asarray(colors[:, 0], dtype=np.uint32)
         g = np.asarray(colors[:, 1], dtype=np.uint32)
         b = np.asarray(colors[:, 2], dtype=np.uint32)
